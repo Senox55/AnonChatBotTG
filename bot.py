@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher, F
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
 from database import Database
 from config import bot_token
@@ -30,10 +30,31 @@ async def process_start_command(message: Message):
     )
 
 
+@dp.message(Command(commands=['stop']))
+async def process_stop_dialog(message: Message):
+    chat_info = await db.get_active_chat(message.chat.id)
+    if chat_info:
+        await db.delete_chat(chat_info[0])
+        await bot.send_message(
+            message.chat.id,
+            "Вы покинули чат",
+            reply_markup=keyboard_before_start_search,
+        )
+        await bot.send_message(
+            chat_info[1],
+            "Собеседник покинул чат",
+            reply_markup=keyboard_before_start_search
+        )
+    else:
+        await message.answer(
+            'Вы не находитесь в диалоге',
+            reply_markup=keyboard_before_start_search
+        )
+
+
 @dp.message(F.text == 'Остановить диалог')
 async def process_stop_dialog(message: Message):
     chat_info = await db.get_active_chat(message.chat.id)
-    print(chat_info)
     if chat_info:
         await db.delete_chat(chat_info[0])
         await bot.send_message(
@@ -82,7 +103,6 @@ async def process_start_search_command(message: Message):
 async def process_finish_search_command(message: Message):
     # Проверяем, находится ли пользователь в очереди
     is_in_queue = await db.is_in_queue(message.chat.id)
-    print(is_in_queue)
 
     if is_in_queue:
         # Удаляем пользователя из очереди, если он в поиске
@@ -102,7 +122,6 @@ async def process_finish_search_command(message: Message):
 @dp.message()
 async def process_chatting(message: Message):
     chat_info = await db.get_active_chat(message.chat.id)
-    print(chat_info)
     if chat_info:
         await message.send_copy(chat_id=chat_info[1])
     else:
