@@ -77,6 +77,7 @@ async def process_stop_dialog(message: Message):
 @dp.message(F.text == '😎 Поиск собеседника')
 async def process_start_search_command(message: Message):
     chat_two = await db.get_chat()  # берем собеседника, который стоит первый в очереди
+    print(message.chat.id, chat_two)
     if not await(db.create_chat(message.chat.id, chat_two)):
         await db.add_queue(message.chat.id)
         await message.answer(
@@ -84,7 +85,7 @@ async def process_start_search_command(message: Message):
             reply_markup=keyboard_after_start_research
         )
 
-    else:
+    elif message.chat.id != chat_two:
         mess = "Собеседник найден!,\nЧтобы остановить диалог напишите /stop"
         await bot.send_message(
             message.chat.id,
