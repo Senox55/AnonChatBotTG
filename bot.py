@@ -43,20 +43,43 @@ def gender_required(func):
 
 
 @dp.message(CommandStart())
+@gender_required
 async def process_start_command(message: Message):
-    setted_gender = await db.get_gender(message.chat.id)
-    if setted_gender:
-        await message.answer(
-            'Добро пожаловать в анонимный чат бот!\n'
-            'Чтобы начать общение нажмите кнопку '
-            '"Поиск собеседника"',
-            reply_markup=keyboard_before_start_search
-        )
+    user_info = await db.get_chat()  # берем собеседника, который стоит первый в очереди
+    chat_two = user_info[0]
+    gender = user_info[1]
+    desired_gender = user_info[2]
+    is_in_queue = await db.is_in_queue(message.chat.id)
+    if not is_in_queue:
+
+        if (message.chat.id == chat_two
+                or user_info == [0]
+                or (desired_gender != 'Anon' and await db.get_gender(message.chat.id) != desired_gender)
+                or not await db.create_chat(message.chat.id, chat_two)):
+
+            await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), 'Anon')
+            await message.answer(
+                'Ищем собеседника...',
+                reply_markup=keyboard_after_start_research
+            )
+        else:
+            mess = "Собеседник найден!,\nЧтобы остановить диалог напишите /stop"
+            await bot.send_message(
+                message.chat.id,
+                mess,
+                reply_markup=keyboard_after_find_dialog
+            )
+
+            await bot.send_message(
+                chat_two,
+                mess,
+                reply_markup=keyboard_after_find_dialog
+            )
     else:
         await message.answer(
-            'Добро пожаловать в анонимный чат бот!\n'
-            'Укажите ваш пол: ',
-            reply_markup=keyboard_before_set_gender
+            "Вы уже находитесь в поиске 🕵️‍♂️. Пожалуйста, подождите немного ⏳.\n\n"
+            "Если хотите отменить поиск, просто напишите /stop.",
+            reply_markup=keyboard_after_start_research
         )
 
 
@@ -113,7 +136,6 @@ async def process_start_search_random_command(message: Message):
     chat_two = user_info[0]
     gender = user_info[1]
     desired_gender = user_info[2]
-    print(user_info)
     is_in_queue = await db.is_in_queue(message.chat.id)
     if not is_in_queue:
 
@@ -121,7 +143,6 @@ async def process_start_search_random_command(message: Message):
                 or user_info == [0]
                 or (desired_gender != 'Anon' and await db.get_gender(message.chat.id) != desired_gender)
                 or not await db.create_chat(message.chat.id, chat_two)):
-            print(1)
 
             await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), 'Anon')
             await message.answer(
@@ -157,8 +178,6 @@ async def process_start_search_male_command(message: Message):
     gender = user_info[1]
     desired_gender = user_info[2]
     is_in_queue = await db.is_in_queue(message.chat.id)
-    print(await db.get_gender(message.chat.id),
-          [desired_gender, 'Anon'])
     if not is_in_queue:
 
         if (message.chat.id == chat_two
@@ -206,7 +225,6 @@ async def process_start_search_male_command(message: Message):
                 or user_info == [0]
                 or (desired_gender != 'Anon' and await db.get_gender(message.chat.id) != desired_gender)
                 or not await db.create_chat(message.chat.id, chat_two)):
-            print(2)
 
             await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), 'female')
             await message.answer(
@@ -255,11 +273,11 @@ async def process_finish_search_command(message: Message):
         )
 
 
-@dp.message(F.text.in_(['Я Парень 🧑', 'Я Девушка 👩']))
+@dp.message(F.text.in_(['Я Парень 🙋‍♂️', 'Я Девушка 🙋‍']))
 async def set_gender(message: Message):
-    if message.text == 'Я Парень 🧑':
+    if message.text == 'Я Парень 🙋‍♂️':
         gender = 'male'
-    elif message.text == 'Я Девушка 👩':
+    elif message.text == 'Я Девушка 🙋‍':
         gender = 'female'
     else:
         return  # Если сообщение не соответствует ожиданиям, ничего не делаем
