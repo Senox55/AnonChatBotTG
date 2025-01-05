@@ -13,8 +13,8 @@ dp = Dispatcher()
 db = Database()
 
 button_search_random = KeyboardButton(text='Рандом 👫')
-button_stop_search = KeyboardButton(text='❌ Остановить поиск собеседника')
-button_stop_dialog = KeyboardButton(text='Остановить диалог')
+button_stop_search = KeyboardButton(text='✋ Остановить поиск')
+button_stop_dialog = KeyboardButton(text='❌ Завершить диалог')
 button_set_male = KeyboardButton(text='Я Парень 🙋‍♂️')
 button_set_female = KeyboardButton(text='Я Девушка 🙋‍♀️')
 button_search_male = KeyboardButton(text='Найти Парня 🙋‍♂️')
@@ -83,6 +83,47 @@ async def process_start_command(message: Message):
         )
 
 
+@dp.message(Command(commands=['search']))
+@gender_required
+async def process_start_command(message: Message):
+    user_info = await db.get_chat()  # берем собеседника, который стоит первый в очереди
+    chat_two = user_info[0]
+    gender = user_info[1]
+    desired_gender = user_info[2]
+    is_in_queue = await db.is_in_queue(message.chat.id)
+    if not is_in_queue:
+
+        if (message.chat.id == chat_two
+                or user_info == [0]
+                or (desired_gender != 'Anon' and await db.get_gender(message.chat.id) != desired_gender)
+                or not await db.create_chat(message.chat.id, chat_two)):
+
+            await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), 'Anon')
+            await message.answer(
+                'Ищем собеседника...',
+                reply_markup=keyboard_after_start_research
+            )
+        else:
+            mess = "Собеседник найден!,\nЧтобы остановить диалог напишите /stop"
+            await bot.send_message(
+                message.chat.id,
+                mess,
+                reply_markup=keyboard_after_find_dialog
+            )
+
+            await bot.send_message(
+                chat_two,
+                mess,
+                reply_markup=keyboard_after_find_dialog
+            )
+    else:
+        await message.answer(
+            "Вы уже находитесь в поиске 🕵️‍♂️. Пожалуйста, подождите немного ⏳.\n\n"
+            "Если хотите отменить поиск, просто напишите /stop.",
+            reply_markup=keyboard_after_start_research
+        )
+
+
 @dp.message(Command(commands=['stop']))
 @gender_required
 async def process_stop_dialog(message: Message):
@@ -100,13 +141,22 @@ async def process_stop_dialog(message: Message):
             reply_markup=keyboard_before_start_search
         )
     else:
-        await message.answer(
-            'Вы не находитесь в диалоге',
-            reply_markup=keyboard_before_start_search
-        )
+        is_in_queue = await db.is_in_queue(message.chat.id)
+        if is_in_queue:
+            # Удаляем пользователя из очереди, если он в поиске
+            await db.delete_queue(message.chat.id)
+            await message.answer(
+                'Поиск отменён',
+                reply_markup=keyboard_before_start_search
+            )
+        else:
+            await message.answer(
+                '''Вы не в диалоге ⚠.\nНапишите /search, чтобы найти собеседника''',
+                reply_markup=keyboard_before_start_search
+            )
 
 
-@dp.message(F.text == 'Остановить диалог')
+@dp.message(F.text == '❌ Завершить диалог')
 @gender_required
 async def process_stop_dialog(message: Message):
     chat_info = await db.get_active_chat(message.chat.id)
@@ -252,7 +302,7 @@ async def process_start_search_male_command(message: Message):
         )
 
 
-@dp.message(F.text == '❌ Остановить поиск собеседника')
+@dp.message(F.text == '✋ Остановить поиск')
 @gender_required
 async def process_finish_search_command(message: Message):
     # Проверяем, находится ли пользователь в очереди
@@ -269,15 +319,16 @@ async def process_finish_search_command(message: Message):
         # Уведомляем, что пользователь не в поиске
         await message.answer(
             'Вы не находитесь в поиске.',
+
             reply_markup=keyboard_before_start_search
         )
 
 
-@dp.message(F.text.in_(['Я Парень 🙋‍♂️', 'Я Девушка 🙋‍']))
+@dp.message(F.text.in_(['Я Парень 🙋‍♂️', 'Я Девушка 🙋‍♀️']))
 async def set_gender(message: Message):
     if message.text == 'Я Парень 🙋‍♂️':
         gender = 'male'
-    elif message.text == 'Я Девушка 🙋‍':
+    elif message.text == 'Я Девушка 🙋‍♀️':
         gender = 'female'
     else:
         return  # Если сообщение не соответствует ожиданиям, ничего не делаем
