@@ -35,6 +35,16 @@ class Database:
         else:
             return False
 
+    async def update_gender(self, chat_id, gender):
+        self.cursor.execute(f"SELECT * FROM users WHERE chat_id = {chat_id}")
+        user = self.cursor.fetchmany(1)
+        if len(user) != 0:
+            self.cursor.execute('UPDATE users SET gender = %s WHERE chat_id = %s', (gender, chat_id))
+            self.connection.commit()
+            return True
+        else:
+            return False
+
     async def get_gender(self, chat_id):
         self.cursor.execute(f"SELECT * FROM users WHERE chat_id = {chat_id}")
         user = self.cursor.fetchmany(1)
@@ -95,6 +105,9 @@ class Database:
         else:
             return chat_info
 
+    async def increment_chat_count(self, user_id):
+        self.cursor.execute('UPDATE users SET total_chats = total_chats + 1 WHERE chat_id = %s', (user_id,))
+
     async def is_in_queue(self, chat_id: int) -> bool:
         """
         Проверяет, находится ли пользователь в очереди.
@@ -105,3 +118,10 @@ class Database:
         self.cursor.execute(query, (chat_id,))
         result = self.cursor.fetchone()
         return result[0] == 1
+
+    async def get_user_info(self, user_id):
+        self.cursor.execute('SELECT * FROM users WHERE chat_id = %s', (user_id,))
+        info = self.cursor.fetchone()
+        if info:
+            return info
+        return False
