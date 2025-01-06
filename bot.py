@@ -200,10 +200,10 @@ async def process_start_search_male_command(message: Message):
 async def stop_dialog(message: Message):
     chat_info = await db.get_active_chat(message.chat.id)
     if chat_info:
-        await db.delete_chat(chat_info[0])
-
         await increment_chat_count(message.chat.id)
         await increment_chat_count(chat_info[1])
+
+        await db.delete_chat(chat_info[0])
 
         await bot.send_message(
             message.chat.id,
@@ -294,8 +294,8 @@ async def show_profile(message: Message):
     user_info = await db.get_user_info(user_id)
 
     if user_info:
-        chat_count = user_info.get('chat_count', 0)
-        gender = user_info.get('gender')
+        chat_count = user_info[3]
+        gender = user_info[2]
 
         profile_message = (
             f"<b>Ваш профиль</b>\n\n"
