@@ -128,59 +128,46 @@ async def process_start_search_male_command(message: Message):
     await start_search(message, desired_gender='female')
 
 
-@dp.message(Command(commands=['stop']))
-@gender_required
-async def process_stop_dialog(message: Message):
+async def stop_dialog(message: Message):
     chat_info = await db.get_active_chat(message.chat.id)
     if chat_info:
         await db.delete_chat(chat_info[0])
         await bot.send_message(
             message.chat.id,
-            "Вы покинули чат",
+            "Вы покинули чат ❌",
             reply_markup=keyboard_before_start_search,
         )
         await bot.send_message(
             chat_info[1],
-            "Собеседник покинул чат",
+            "Ваш собеседник завершил диалог ❌",
             reply_markup=keyboard_before_start_search
         )
     else:
         is_in_queue = await db.is_in_queue(message.chat.id)
         if is_in_queue:
-            # Удаляем пользователя из очереди, если он в поиске
             await db.delete_queue(message.chat.id)
             await message.answer(
-                '🔕 Поиск собеседника отменён.',
+                '🔕 Поиск отменён.',
                 reply_markup=keyboard_before_start_search
             )
         else:
             await message.answer(
-                '''Вы не в диалоге ⚠.\nНапишите /search, чтобы найти собеседника''',
+                '⚠ Вы не находитесь в диалоге.\n'
+                'Чтобы найти собеседника, нажмите "Рандом 👫" или выберите другой вариант.',
                 reply_markup=keyboard_before_start_search
             )
 
 
+@dp.message(Command(commands=['stop']))
+@gender_required
+async def process_stop_command(message: Message):
+    await stop_dialog(message)
+
+
 @dp.message(F.text == '❌ Завершить диалог')
 @gender_required
-async def process_stop_dialog(message: Message):
-    chat_info = await db.get_active_chat(message.chat.id)
-    if chat_info:
-        await db.delete_chat(chat_info[0])
-        await bot.send_message(
-            message.chat.id,
-            "Вы покинули чат",
-            reply_markup=keyboard_before_start_search,
-        )
-        await bot.send_message(
-            chat_info[1],
-            "Собеседник покинул чат",
-            reply_markup=keyboard_before_start_search
-        )
-    else:
-        await message.answer(
-            'Вы не находитесь в диалоге',
-            reply_markup=keyboard_before_start_search
-        )
+async def process_stop_button(message: Message):
+    await stop_dialog(message)
 
 
 @dp.message(F.text == '✋ Остановить поиск')
