@@ -44,25 +44,25 @@ class Database:
         else:
             return False
 
-    async def get_gender_chat(self, gender):
-        self.cursor.execute("SELECT * FROM queue WHERE gender = %s", (gender,))
-        chat = self.cursor.fetchmany(1)
-        if len(chat):
-            for row in chat:
-                user_info = [row[0], row[2], row[3]]
-                return user_info
+    async def get_chat(self, gender):
+        if gender != 'anon':
+            self.cursor.execute("SELECT * FROM queue WHERE gender = %s", (gender,))
+            chat = self.cursor.fetchmany(1)
+            if len(chat):
+                for row in chat:
+                    user_info = [row[0], row[2], row[3]]
+                    return user_info
+            else:
+                return [0, 0, 0]
         else:
-            return [0, 0, 0]
-
-    async def get_chat(self):
-        self.cursor.execute("SELECT * FROM queue")
-        chat = self.cursor.fetchmany(1)
-        if len(chat):
-            for row in chat:
-                user_info = [row[0], row[2], row[3]]
-                return user_info
-        else:
-            return [0, 0, 0]
+            self.cursor.execute("SELECT * FROM queue")
+            chat = self.cursor.fetchmany(1)
+            if len(chat):
+                for row in chat:
+                    user_info = [row[0], row[2], row[3]]
+                    return user_info
+            else:
+                return [0, 0, 0]
 
     async def create_chat(self, chat_one, chat_two):
         if chat_two:
