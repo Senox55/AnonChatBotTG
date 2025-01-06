@@ -106,7 +106,8 @@ class Database:
             return chat_info
 
     async def increment_chat_count(self, user_id):
-        self.cursor.execute('UPDATE users SET total_chats = total_chats + 1 WHERE chat_id = %s', (user_id,))
+        self.cursor.execute('UPDATE users SET count_chat = count_chat + 1 WHERE chat_id = %s', (user_id,))
+        self.connection.commit()
 
     async def is_in_queue(self, chat_id: int) -> bool:
         """
