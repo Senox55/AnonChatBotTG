@@ -267,7 +267,7 @@ async def process_finish_search_command(message: Message):
 
 @dp.message(F.text.in_(['Я Парень 🙋‍♂️', 'Я Девушка 🙋‍♀️']))
 async def set_gender(message: Message):
-    if not db.get_user_info(message.chat.id):
+    if not await db.get_user_info(message.chat.id):
         if message.text == 'Я Парень 🙋‍♂️':
             gender = 'male'
         elif message.text == 'Я Девушка 🙋‍♀️':
