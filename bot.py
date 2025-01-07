@@ -203,7 +203,7 @@ async def process_start_command(message: Message, desired_gender='anon'):
 @gender_required
 async def process_choose_gender_search(message: Message):
     await message.answer(
-        'Выберите желаемый пол собеседника',
+        'Выберите желаемый пол собеседника:',
         reply_markup=keyboard_choose_gender_search
     )
 

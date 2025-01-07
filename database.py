@@ -78,7 +78,7 @@ class Database:
         if user_id_two:
             # Создание чата
             await self.delete_queue(user_id_two)
-            self.cursor.execute("INSERT INTO chats (chat_one, chat_two)"
+            self.cursor.execute("INSERT INTO chats (user_id_one, user_id_two)"
                                 f"VALUES ({user_id_one}, {user_id_two})")
             return True
         else:
