@@ -15,38 +15,38 @@ class Database:
         self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
     async def add_queue(self, chat_id: int, gender: str, desired_gender: str):
-        query = "INSERT INTO queue (chat_id, gender, desired_gender) VALUES (%s, %s, %s)"
+        query = "INSERT INTO queue (user_id, gender, desired_gender) VALUES (%s, %s, %s)"
         self.cursor.execute(query, (chat_id, gender, desired_gender))
         return True  # Возвращаем результат, если нужно
 
-    async def delete_queue(self, chat_id):
-        return self.cursor.execute(f"DELETE FROM queue WHERE chat_id = {chat_id}")
+    async def delete_queue(self, user_id):
+        return self.cursor.execute(f"DELETE FROM queue WHERE user_id = {user_id}")
 
-    async def delete_chat(self, id_chat):
-        return self.cursor.execute(f"DELETE FROM chats WHERE id = {id_chat}")
+    async def delete_chat(self, chat_id):
+        return self.cursor.execute(f"DELETE FROM chats WHERE id = {chat_id}")
 
-    async def set_gender(self, chat_id, gender):
-        self.cursor.execute(f"SELECT * FROM users WHERE chat_id = {chat_id}")
+    async def set_gender(self, user_id, gender):
+        self.cursor.execute(f"SELECT * FROM users WHERE user_id = {user_id}")
         user = self.cursor.fetchmany(1)
         if len(user) == 0:
-            self.cursor.execute("INSERT INTO users (chat_id, gender) VALUES (%s, %s)", (chat_id, gender))
+            self.cursor.execute("INSERT INTO users (user_id, gender) VALUES (%s, %s)", (user_id, gender))
             self.connection.commit()
             return True
         else:
             return False
 
-    async def update_gender(self, chat_id, gender):
-        self.cursor.execute(f"SELECT * FROM users WHERE chat_id = {chat_id}")
+    async def update_gender(self, user_id, gender):
+        self.cursor.execute(f"SELECT * FROM users WHERE user_id = {user_id}")
         user = self.cursor.fetchmany(1)
         if len(user) != 0:
-            self.cursor.execute('UPDATE users SET gender = %s WHERE chat_id = %s', (gender, chat_id))
+            self.cursor.execute('UPDATE users SET gender = %s WHERE user_id = %s', (gender, user_id))
             self.connection.commit()
             return True
         else:
             return False
 
-    async def get_gender(self, chat_id):
-        self.cursor.execute(f"SELECT * FROM users WHERE chat_id = {chat_id}")
+    async def get_gender(self, user_id):
+        self.cursor.execute(f"SELECT * FROM users WHERE user_id = {user_id}")
         user = self.cursor.fetchmany(1)
         if len(user):
             for row in user:
@@ -74,30 +74,30 @@ class Database:
             else:
                 return [0, 0, 0]
 
-    async def create_chat(self, chat_one, chat_two):
-        if chat_two:
+    async def create_chat(self, user_id_one, user_id_two):
+        if user_id_two:
             # Создание чата
-            await self.delete_queue(chat_two)
+            await self.delete_queue(user_id_two)
             self.cursor.execute("INSERT INTO chats (chat_one, chat_two)"
-                                f"VALUES ({chat_one}, {chat_two})")
+                                f"VALUES ({user_id_one}, {user_id_two})")
             return True
         else:
             # Становимся в очередь
             return False
 
-    async def get_active_chat(self, chat_id):
-        self.cursor.execute(f"SELECT * FROM chats WHERE chat_one = {chat_id}")
+    async def get_active_chat(self, user_id_one):
+        self.cursor.execute(f"SELECT * FROM chats WHERE user_id_one = {user_id_one}")
         chat = self.cursor.fetchall()
         id_chat = 0
         for row in chat:
             id_chat = row['id']
-            chat_info = [row['id'], row['chat_two']]
+            chat_info = [row['id'], row['user_id_two']]
         if id_chat == 0:
-            self.cursor.execute(f"SELECT * FROM chats WHERE chat_two = {chat_id}")
+            self.cursor.execute(f"SELECT * FROM chats WHERE user_id_two = {user_id_one}")
             chat = self.cursor.fetchall()
             for row in chat:
                 id_chat = row['id']
-                chat_info = [row['id'], row['chat_one']]
+                chat_info = [row['id'], row['user_id_one']]
             if id_chat == 0:
                 return False
             else:
@@ -106,22 +106,22 @@ class Database:
             return chat_info
 
     async def increment_chat_count(self, user_id):
-        self.cursor.execute('UPDATE users SET count_chat = count_chat + 1 WHERE chat_id = %s', (user_id,))
+        self.cursor.execute('UPDATE users SET count_chats = count_chats + 1 WHERE user_id = %s', (user_id,))
         self.connection.commit()
 
-    async def is_in_queue(self, chat_id: int) -> bool:
+    async def is_in_queue(self, user_id: int) -> bool:
         """
         Проверяет, находится ли пользователь в очереди.
         :param chat_id: ID чата пользователя
         :return: True, если пользователь в очереди, иначе False
         """
-        query = "SELECT EXISTS(SELECT 1 FROM queue WHERE chat_id = %s)"
-        self.cursor.execute(query, (chat_id,))
+        query = "SELECT EXISTS(SELECT 1 FROM queue WHERE user_id = %s)"
+        self.cursor.execute(query, (user_id,))
         result = self.cursor.fetchone()
         return result[0] == 1
 
     async def get_user_info(self, user_id):
-        self.cursor.execute('SELECT * FROM users WHERE chat_id = %s', (user_id,))
+        self.cursor.execute('SELECT * FROM users WHERE user_id = %s', (user_id,))
         info = self.cursor.fetchone()
         if info:
             return info
