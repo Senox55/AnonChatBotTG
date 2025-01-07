@@ -1,22 +1,22 @@
 import psycopg2
 import psycopg2.extras
-from config import user, host, password, db_name
+import os
 
 
 class Database:
     def __init__(self):
         self.connection = psycopg2.connect(
-            host=host,
+            host=os.getenv('HOST'),
             port=5432,
-            user=user,
-            password=password,
-            database=db_name,
+            user=os.getenv('USER'),
+            password=os.getenv('PASSWORD'),
+            database=os.getenv('DB_NAME'),
         )
         self.cursor = self.connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-    async def add_queue(self, chat_id: int, gender: str, desired_gender: str):
+    async def add_queue(self, user_id: int, gender: str, desired_gender: str):
         query = "INSERT INTO queue (user_id, gender, desired_gender) VALUES (%s, %s, %s)"
-        self.cursor.execute(query, (chat_id, gender, desired_gender))
+        self.cursor.execute(query, (user_id, gender, desired_gender))
         return True  # Возвращаем результат, если нужно
 
     async def delete_queue(self, user_id):
