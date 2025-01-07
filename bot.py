@@ -14,7 +14,8 @@ dp = Dispatcher()
 
 db = Database()
 
-button_search_random = KeyboardButton(text='Рандом 👫')
+button_search_random = KeyboardButton(text='🔍Начать общение')
+button_search_by_gender = KeyboardButton(text='👫Поиск по полу')
 button_stop_search = KeyboardButton(text='✋ Остановить поиск')
 button_stop_dialog = KeyboardButton(text='❌ Завершить диалог')
 button_set_male = KeyboardButton(text='Я Парень 🙋‍♂️')
@@ -28,7 +29,7 @@ button_change_sex = KeyboardButton(text='Изменить пол')
 
 keyboard_before_start_search = ReplyKeyboardMarkup(
     keyboard=[[button_search_random],
-              [button_search_male, button_search_female],
+              [button_search_by_gender],
               [button_profile]], resize_keyboard=True, row_width=1)
 keyboard_after_start_research = ReplyKeyboardMarkup(keyboard=[[button_stop_search]], resize_keyboard=True)
 keyboard_after_find_dialog = ReplyKeyboardMarkup(keyboard=[[button_stop_dialog]], resize_keyboard=True)
@@ -36,6 +37,8 @@ keyboard_before_set_gender = ReplyKeyboardMarkup(keyboard=[[button_set_male, but
 keyboard_before_change_gender = ReplyKeyboardMarkup(keyboard=[[button_change_male, button_change_female]],
                                                     resize_keyboard=True)
 keyboard_change_profile = ReplyKeyboardMarkup(keyboard=[[button_change_sex]], resize_keyboard=True)
+keyboard_choose_gender_search = ReplyKeyboardMarkup(keyboard=[[button_search_male, button_search_female]],
+                                                    resize_keyboard=True)
 
 
 def gender_required(func):
@@ -179,7 +182,16 @@ async def process_start_command(message: Message, desired_gender='anon'):
         )
 
 
-@dp.message(F.text == 'Рандом 👫')
+@dp.message(F.text == '👫Поиск по полу')
+@gender_required
+async def process_choose_gender_search(message: Message):
+    await message.answer(
+        'Выберите желаемый пол собеседника',
+        reply_markup=keyboard_choose_gender_search
+    )
+
+
+@dp.message(F.text == '🔍Начать общение')
 @gender_required
 async def process_start_search_random_command(message: Message):
     await start_search(message, desired_gender='anon')
@@ -359,8 +371,16 @@ async def set_gender_for_profile(message: Message, state: FSMContext):
 @gender_required
 async def process_chatting(message: Message):
     chat_info = await db.get_active_chat(message.chat.id)
+    is_in_queue = await db.is_in_queue(message.chat.id)
     if chat_info:
         await message.send_copy(chat_id=chat_info[1])
+    elif is_in_queue:
+        await message.answer(
+            'Вы уже находитесь в поиске 🕵️‍♂️.\n'
+            'Пожалуйста, немного подождите, пока мы найдем для вас собеседника. ⏳\n\n'
+            'Если хотите отменить поиск, нажмите "✋ Остановить поиск" или отправьте /stop.',
+            reply_markup=keyboard_after_start_research
+        )
     else:
         await message.answer(
             'Вы еще не начали диалог',
