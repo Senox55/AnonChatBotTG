@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import Message, KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup, \
+    CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from database import Database
@@ -14,29 +15,45 @@ dp = Dispatcher()
 
 db = Database()
 
+button_edit_profile_inline = InlineKeyboardButton(
+    text='Изменить профиль',
+    callback_data='edit_profile_pressed'
+)
+
+button_set_male_inline = InlineKeyboardButton(
+    text='Я Парень 🙋‍♂',
+    callback_data='set_male_pressed'
+)
+
+button_set_female_inline = InlineKeyboardButton(
+    text='Я Девушка 🙋‍♀️',
+    callback_data='set_female_pressed'
+)
+
 button_search_random = KeyboardButton(text='🔍Начать общение')
 button_search_by_gender = KeyboardButton(text='👫Поиск по полу')
 button_stop_search = KeyboardButton(text='✋ Остановить поиск')
 button_stop_dialog = KeyboardButton(text='❌ Завершить диалог')
 button_set_male = KeyboardButton(text='Я Парень 🙋‍♂️')
-button_change_male = KeyboardButton(text='Мужчина')
-button_change_female = KeyboardButton(text='Женщина')
 button_set_female = KeyboardButton(text='Я Девушка 🙋‍♀️')
 button_search_male = KeyboardButton(text='Найти Парня 🙋‍♂️')
 button_search_female = KeyboardButton(text='Найти Девушку 🙋‍♀️')
 button_profile = KeyboardButton(text='👤 Профиль')
-button_change_sex = KeyboardButton(text='Изменить пол')
 
 keyboard_before_start_search = ReplyKeyboardMarkup(
     keyboard=[[button_search_random],
               [button_search_by_gender],
               [button_profile]], resize_keyboard=True, row_width=1)
+
 keyboard_after_start_research = ReplyKeyboardMarkup(keyboard=[[button_stop_search]], resize_keyboard=True)
 keyboard_after_find_dialog = ReplyKeyboardMarkup(keyboard=[[button_stop_dialog]], resize_keyboard=True)
 keyboard_before_set_gender = ReplyKeyboardMarkup(keyboard=[[button_set_male, button_set_female]], resize_keyboard=True)
-keyboard_before_change_gender = ReplyKeyboardMarkup(keyboard=[[button_change_male, button_change_female]],
-                                                    resize_keyboard=True)
-keyboard_change_profile = ReplyKeyboardMarkup(keyboard=[[button_change_sex]], resize_keyboard=True)
+
+keyboard_before_change_gender_inline = InlineKeyboardMarkup(
+    inline_keyboard=[[button_set_male_inline, button_set_female_inline]])
+
+keyboard_edit_profile_inline = InlineKeyboardMarkup(inline_keyboard=[[button_edit_profile_inline]])
+
 keyboard_choose_gender_search = ReplyKeyboardMarkup(keyboard=[[button_search_male, button_search_female]],
                                                     resize_keyboard=True)
 
@@ -297,6 +314,22 @@ async def set_gender(message: Message):
         )
 
 
+@dp.callback_query(F.data == 'set_male_pressed')
+async def process_set_male_gender(callback: CallbackQuery):
+    await db.update_gender(callback.message.chat.id, 'male')
+    await callback.message.edit_text(
+        'Ваш пол успешно сохранён! Теперь вы можете начать общение.',
+        reply_markup=None)
+
+
+@dp.callback_query(F.data == 'set_female_pressed')
+async def process_set_male_gender(callback: CallbackQuery):
+    await db.update_gender(callback.message.chat.id, 'female')
+    await callback.message.edit_text(
+        'Ваш пол успешно сохранён! Теперь вы можете начать общение.',
+        reply_markup=None)
+
+
 async def increment_chat_count(user_id: int):
     await db.increment_chat_count(user_id)
 
@@ -316,7 +349,7 @@ async def show_profile(message: Message):
             "Выберите, что вы хотите изменить:"
         )
 
-        await message.answer(profile_message, parse_mode="HTML", reply_markup=keyboard_change_profile)
+        await message.answer(profile_message, parse_mode="HTML", reply_markup=keyboard_edit_profile_inline)
 
 
 @dp.message(Command(commands=['profile']))
@@ -331,6 +364,14 @@ async def process_profile_button(message: Message):
     await show_profile(message)
 
 
+@dp.callback_query(F.data == 'edit_profile_pressed')
+async def process_button_2_press(callback: CallbackQuery):
+    await callback.message.edit_text(
+        text='1.Укажите ваш пол:',
+        reply_markup=keyboard_before_change_gender_inline
+    )
+
+
 # Определение состояний
 class GenderChange(StatesGroup):
     waiting_for_gender = State()
@@ -342,7 +383,7 @@ async def change_gender(message: Message, state: FSMContext):
         "Выберите ваш пол:\n"
         "Мужчина \n"
         "Женщина",
-        reply_markup=keyboard_before_change_gender
+        reply_markup=keyboard_before_change_gender_inline
     )
     await state.set_state(GenderChange.waiting_for_gender)
 
