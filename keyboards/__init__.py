@@ -1,2 +1,2 @@
-from .inline_keyboards import *
-from .reply_keyboards import *
+from keyboards.inline_keyboards import *
+from keyboards.reply_keyboards import *
