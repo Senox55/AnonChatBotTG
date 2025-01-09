@@ -94,3 +94,11 @@ async def process_start_search_male_command(message: Message, db, bot):
 @router.message(F.text == 'Найти Девушку 🙋‍♀️')
 async def process_start_search_female_command(message: Message, db, bot):
     await start_search(message, db, bot, desired_gender='female')
+
+
+@router.message(F.text == '🔻 Назад')
+async def process_cancel_choose_gender_for_search(message: Message):
+    await message.answer(
+        'Выбор отменён',
+        reply_markup=keyboard_before_start_search
+    )

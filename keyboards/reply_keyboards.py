@@ -9,6 +9,7 @@ button_set_female = KeyboardButton(text='Я Девушка 🙋‍♀️')
 button_search_male = KeyboardButton(text='Найти Парня 🙋‍♂️')
 button_search_female = KeyboardButton(text='Найти Девушку 🙋‍♀️')
 button_profile = KeyboardButton(text='👤 Профиль')
+button_cancel_choose_gender_for_search = KeyboardButton(text='🔻 Назад')
 
 keyboard_before_start_search = ReplyKeyboardMarkup(
     keyboard=[[button_search_random],
@@ -21,5 +22,6 @@ keyboard_after_find_dialog = ReplyKeyboardMarkup(keyboard=[[button_stop_dialog]]
 
 keyboard_before_set_gender = ReplyKeyboardMarkup(keyboard=[[button_set_male, button_set_female]], resize_keyboard=True)
 
-keyboard_choose_gender_search = ReplyKeyboardMarkup(keyboard=[[button_search_male, button_search_female]],
+keyboard_choose_gender_search = ReplyKeyboardMarkup(keyboard=[[button_search_male, button_search_female],
+                                                              [button_cancel_choose_gender_for_search]],
                                                     resize_keyboard=True)
