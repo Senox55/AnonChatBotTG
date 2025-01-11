@@ -3,8 +3,10 @@ from aiogram import Bot, Dispatcher
 
 from config_data.config import load_config
 from database.utils import get_pg_pool
+from language.translator import Translator
 from middlewares.database import DataBaseMiddleware
 from middlewares.gender_cheker import GenderCheckerMiddleware
+from middlewares.translator import TranslatorMiddleware
 from handlers import start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration
 
 
@@ -24,6 +26,7 @@ async def main():
 
     dp.update.middleware(DataBaseMiddleware())
     dp.update.middleware(GenderCheckerMiddleware())
+    dp.update.middleware(TranslatorMiddleware())
 
     dp.include_router(profile.router)
     dp.include_router(start_search.router)
@@ -35,7 +38,9 @@ async def main():
 
     await bot.delete_webhook(drop_pending_updates=True)
     try:
-        await dp.start_polling(bot, _db_pool=db_pool)
+        await dp.start_polling(bot,
+                               _db_pool=db_pool,
+                               translator=Translator())
     finally:
         await db_pool.close()
 

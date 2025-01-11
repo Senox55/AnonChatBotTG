@@ -7,7 +7,7 @@ router = Router()
 
 
 @router.message(F.text.in_(['Я Парень 🙋‍♂️', 'Я Девушка 🙋‍♀️']))
-async def set_gender(message: Message, db):
+async def set_gender(message: Message, db, translator):
     if not await db.get_user_info(message.chat.id):
         if message.text == 'Я Парень 🙋‍♂️':
             gender = 'male'
@@ -21,6 +21,6 @@ async def set_gender(message: Message, db):
 
         # Отправляем приветственное сообщение и клавиатуру для дальнейшего взаимодействия
         await message.answer(
-            'Ваш пол успешно сохранён! Теперь вы можете начать общение.',
+            translator.get('save_gender'),
             reply_markup=keyboard_before_start_search
         )

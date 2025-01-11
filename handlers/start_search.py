@@ -7,7 +7,7 @@ from keyboards import *
 router = Router()
 
 
-async def start_search(message: Message, db, bot, desired_gender: str = 'anon'):
+async def start_search(message: Message, db, bot, translator, desired_gender: str = 'anon'):
     """
     Универсальная функция для начала поиска собеседника.
 
@@ -32,12 +32,11 @@ async def start_search(message: Message, db, bot, desired_gender: str = 'anon'):
 
                 await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), desired_gender)
                 await message.answer(
-                    'Ищем собеседника... 🔍\n\n'
-                    'Пожалуйста, подождите немного — мы уже подбираем для вас интересного человека. 😊',
+                    translator.get('start_search'),
                     reply_markup=keyboard_after_start_research
                 )
             else:
-                mess = '''🎉 Ура! Собеседник найден! \n\nНачинайте общение прямо сейчас.\n/next — искать нового собеседника\n/stop — закончить диалог'''
+                mess = translator.get('found_interlocutor')
                 await bot.send_message(
                     message.chat.id,
                     mess,
@@ -50,55 +49,53 @@ async def start_search(message: Message, db, bot, desired_gender: str = 'anon'):
                 )
         else:
             await message.answer(
-                "У вас уже есть собеседник 🤔\n/next — искать нового собеседника\n/stop — закончить диалог",
+                translator.get('start_search_when_in_dialog'),
                 reply_markup=keyboard_after_find_dialog
             )
 
     else:
         await message.answer(
-            'Вы уже находитесь в поиске 🕵️‍♂️.\n'
-            'Пожалуйста, немного подождите, пока мы найдем для вас собеседника. ⏳\n\n'
-            'Если хотите отменить поиск, нажмите "✋ Остановить поиск" или отправьте /stop.',
+            translator.get('start_search_when_in_search'),
             reply_markup=keyboard_after_start_research
         )
 
 
 @router.message(F.text == '👫Поиск по полу')
-async def process_choose_gender_search(message: Message):
+async def process_choose_gender_search(message: Message, translator):
     await message.answer(
-        'Выберите желаемый пол собеседника:',
+        translator.get('choose_search_gender'),
         reply_markup=keyboard_choose_gender_search
     )
 
 
 @router.message(CommandStart())
-async def process_start_command(message: Message, db, bot):
-    await start_search(message, db, bot, desired_gender='anon')
+async def process_start_command(message: Message, db, bot, translator):
+    await start_search(message, db, bot, translator, desired_gender='anon')
 
 
 @router.message(Command(commands=['search']))
-async def process_search_command(message: Message, db, bot):
-    await start_search(message, db, bot, desired_gender='anon')
+async def process_search_command(message: Message, db, bot, translator):
+    await start_search(message, db, bot, translator, desired_gender='anon')
 
 
 @router.message(F.text == '🔍Начать общение')
-async def process_start_search_random_command(message: Message, db, bot):
-    await start_search(message, db, bot, desired_gender='anon')
+async def process_start_search_random_command(message: Message, db, bot, translator):
+    await start_search(message, db, bot, translator, desired_gender='anon')
 
 
 @router.message(F.text == 'Найти Парня 🙋‍♂️')
-async def process_start_search_male_command(message: Message, db, bot):
-    await start_search(message, db, bot, desired_gender='male')
+async def process_start_search_male_command(message: Message, db, bot, translator):
+    await start_search(message, db, bot, translator, desired_gender='male')
 
 
 @router.message(F.text == 'Найти Девушку 🙋‍♀️')
-async def process_start_search_female_command(message: Message, db, bot):
-    await start_search(message, db, bot, desired_gender='female')
+async def process_start_search_female_command(message: Message, db, bot, translator):
+    await start_search(message, db, bot, translator, desired_gender='female')
 
 
 @router.message(F.text == '🔻 Назад')
-async def process_cancel_choose_gender_for_search(message: Message):
+async def process_cancel_choose_gender_for_search(message: Message, translator):
     await message.answer(
-        'Выбор отменён',
+        translator.get('cancel_choose_search_gender'),
         reply_markup=keyboard_before_start_search
     )

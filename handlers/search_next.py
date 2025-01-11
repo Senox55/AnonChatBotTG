@@ -8,18 +8,18 @@ router = Router()
 
 
 @router.message(Command(commands=['next']))
-async def process_next_command(message: Message, db, bot, desired_gender='anon'):
+async def process_next_command(message: Message, db, bot, translator, desired_gender='anon'):
     chat_info = await db.get_active_chat(message.chat.id)
     if chat_info:
         await db.delete_chat(chat_info[0])
         await bot.send_message(
             message.chat.id,
-            "Вы покинули чат ❌",
+            translator.get('stop_dialog'),
             reply_markup=keyboard_before_start_search,
         )
         await bot.send_message(
             chat_info[1],
-            "Ваш собеседник завершил диалог ❌",
+            translator.get('interlocutor_stop_dialog'),
             reply_markup=keyboard_before_start_search
         )
 
@@ -39,12 +39,11 @@ async def process_next_command(message: Message, db, bot, desired_gender='anon')
 
             await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), desired_gender)
             await message.answer(
-                'Ищем собеседника... 🔍\n\n'
-                'Пожалуйста, подождите немного — мы уже подбираем для вас интересного человека. 😊',
+                translator.get('start_search'),
                 reply_markup=keyboard_after_start_research
             )
         else:
-            mess = '''🎉 Ура! Собеседник найден! \n\nНачинайте общение прямо сейчас.\n/next — искать нового собеседника\n/stop — закончить диалог'''
+            mess = translator.get('found_interlocutor')
             await bot.send_message(
                 message.chat.id,
                 mess,
@@ -57,9 +56,7 @@ async def process_next_command(message: Message, db, bot, desired_gender='anon')
             )
     else:
         await message.answer(
-            'Вы уже находитесь в поиске 🕵️‍♂️.\n'
-            'Пожалуйста, немного подождите, пока мы найдем для вас собеседника. ⏳\n\n'
-            'Если хотите отменить поиск, нажмите "✋ Остановить поиск" или отправьте /stop.',
+            translator.get('start_search_when_in_search'),
             reply_markup=keyboard_after_start_research
         )
 
