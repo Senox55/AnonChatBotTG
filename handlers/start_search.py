@@ -31,8 +31,14 @@ async def start_search(message: Message, db, bot, translator, desired_gender: st
                     or not await db.create_chat(message.chat.id, chat_two)):
 
                 await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), desired_gender)
+                if desired_gender == 'male':
+                    search_message = translator.get('start_search_male')
+                elif desired_gender == 'female':
+                    search_message = translator.get('start_search_female')
+                else:
+                    search_message = translator.get('start_search')
                 await message.answer(
-                    translator.get('start_search'),
+                    search_message,
                     reply_markup=keyboard_after_start_research
                 )
             else:
