@@ -18,7 +18,7 @@ class Database():
         return status.split()[-1]  # Возвращает количество удалённых строк
 
     async def delete_chat(self, chat_id):
-        status = await self.connection.execute("DELETE FROM chats WHERE id = %s",
+        status = await self.connection.execute("DELETE FROM chats WHERE id = $1",
                                                chat_id)
         return status.split()[-1]  # Возвращает количество удалённых строк
 
