@@ -32,7 +32,7 @@ class Database():
 
     async def update_gender(self, user_id, gender):
         user = await self.connection.fetch(f"SELECT * FROM users WHERE user_id = $1", user_id)
-        if not user:
+        if user:
             await self.connection.execute('UPDATE users SET gender = $1 WHERE user_id = $2', gender, user_id)
             return True
         else:

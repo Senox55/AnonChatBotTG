@@ -62,25 +62,6 @@ async def change_gender(message: Message, state: FSMContext):
     await state.set_state(GenderChange.waiting_for_gender)
 
 
-async def set_gender_for_profile(message: Message, state: FSMContext, db):
-    if message.text == 'Мужчина':
-        gender = 'male'
-    elif message.text == 'Женщина':
-        gender = 'female'
-    else:
-        return  # Если сообщение не соответствует ожиданиям, ничего не делаем
-
-    # Обновляем пол в базе данных
-    await db.update_gender(message.chat.id, gender)
-
-    # Отправляем подтверждение и возвращаемся к редактированию профиля
-    await message.answer(
-        'Ваш пол успешно изменён!',
-        reply_markup=keyboard_before_start_search
-    )
-    await state.clear()
-
-
 @router.callback_query(F.data == 'set_male_pressed')
 async def process_set_male_gender(callback: CallbackQuery, db):
     await db.update_gender(callback.message.chat.id, 'male')
