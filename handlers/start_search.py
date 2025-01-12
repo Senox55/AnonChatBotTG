@@ -14,21 +14,15 @@ async def start_search(message: Message, db, bot, translator, desired_gender: st
     :param message: Объект сообщения пользователя.
     :param desired_gender: Пол собеседника, которого ищет пользователь ('male', 'female', 'anon').
     """
-    user_info = await db.get_chat(desired_gender)
-    chat_two = user_info[0]
-    gender = user_info[1]
-    desired_gender_of_other = user_info[2]  # Пол, который ищет другой пользователь
 
     is_in_queue = await db.is_in_queue(message.chat.id)
     chat_info = await db.get_active_chat(message.chat.id)
 
+    chat_two = await db.get_chat(await db.get_gender(message.chat.id), desired_gender)
+
     if not is_in_queue:
         if not chat_info:
-            if (message.chat.id == chat_two
-                    or user_info == [0]
-                    or (desired_gender_of_other != 'anon' and await db.get_gender(
-                        message.chat.id) != desired_gender_of_other)
-                    or not await db.create_chat(message.chat.id, chat_two)):
+            if not await db.create_chat(message.chat.id, chat_two):
 
                 await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), desired_gender)
                 if desired_gender == 'male':

@@ -42,17 +42,24 @@ class Database():
         user = await self.connection.fetchrow(f"SELECT * FROM users WHERE user_id = $1", user_id)
         return user['gender'] if user else False
 
-    async def get_chat(self, gender):
-        if gender != 'anon':
-            chat = await self.connection.fetchrow("SELECT * FROM queue WHERE gender = $1", gender)
+    async def get_chat(self, gender, desired_gender):
+        if desired_gender != 'anon':
+            if gender != 'anon':
+                chat = await self.connection.fetchrow("SELECT * FROM queue WHERE gender = $1 AND desired_gender = $2",
+                                                      desired_gender, gender)
+            else:
+                chat = await self.connection.fetchrow("SELECT * FROM queue WHERE gender = $1",
+                                                      desired_gender)
         else:
+
             chat = await self.connection.fetchrow(
-                "SELECT user_id, gender, desired_gender FROM queue"
+                "SELECT user_id, gender, desired_gender FROM queue WHERE desired_gender IN ($1, 'anon')",
+                gender
             )
 
         if chat:
-            return [chat['user_id'], chat['gender'], chat['desired_gender']]
-        return [0, 0, 0]
+            return chat['user_id']
+        return 0
 
     async def create_chat(self, user_id_one, user_id_two):
         if user_id_two:
