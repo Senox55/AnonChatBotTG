@@ -1,17 +1,14 @@
 from aiogram import F, Router
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import Command
 
+from states.gender_change import GenderChange
+from config_data.config import load_config
 from keyboards import *
 
 router = Router()
-
-
-# Определение состояний
-class GenderChange(StatesGroup):
-    waiting_for_gender = State()
+config = load_config('.env')
 
 
 async def show_profile(message: Message, db, translator):
@@ -19,13 +16,15 @@ async def show_profile(message: Message, db, translator):
     user_info = await db.get_user_info(user_id)
 
     if user_info:
-        chat_count = user_info[3]
-        gender = user_info[2]
+        count_chats = user_info['count_chats']
+        gender = user_info['gender']
+        age = user_info['age']
 
         profile_message = (
             f"<b>Ваш профиль</b>\n\n"
-            f"💬 Чатов — {chat_count}\n"
-            f"Пол — {gender}\n\n"
+            f"💬 Чатов — {count_chats}\n"
+            f"Пол — {gender}\n"
+            f"Возраст - {config.age.age_ranges.get(age)}\n\n"
             "Выберите, что вы хотите изменить:"
         )
 
@@ -64,7 +63,7 @@ async def change_gender(message: Message, state: FSMContext, translator):
 async def process_set_male_gender(callback: CallbackQuery, db, translator):
     await db.update_gender(callback.message.chat.id, 'male')
     await callback.message.edit_text(
-        translator.get('save_gender'),
+        translator.get('registered'),
         reply_markup=None)
     await callback.answer()
 
@@ -73,6 +72,6 @@ async def process_set_male_gender(callback: CallbackQuery, db, translator):
 async def process_set_female_gender(callback: CallbackQuery, db, translator):
     await db.update_gender(callback.message.chat.id, 'female')
     await callback.message.edit_text(
-        translator.get('save_gender'),
+        translator.get('registered'),
         reply_markup=None)
     await callback.answer()

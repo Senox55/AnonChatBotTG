@@ -42,6 +42,18 @@ class Database():
         user = await self.connection.fetchrow(f"SELECT * FROM users WHERE user_id = $1", user_id)
         return user['gender'] if user else False
 
+    async def get_age(self, user_id):
+        user = await self.connection.fetchrow(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        return user['age'] if user else False
+
+    async def set_age(self, user_id, age):
+        user = await self.connection.fetch(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        if user:
+            await self.connection.execute("UPDATE users SET age = $1 WHERE user_id = $2", age, user_id)
+            return True
+        else:
+            return False
+
     async def get_chat(self, gender, desired_gender):
         if desired_gender != 'anon':
             if gender != 'anon':
