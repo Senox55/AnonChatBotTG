@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from environs import Env
-from typing import Dict
 
 
 @dataclass
@@ -30,10 +29,19 @@ class AgeConfig:
 
 
 @dataclass
+class GenderConfig:
+    genders: dict[str, str] = field(default_factory=lambda: {
+        'm': 'мужской',
+        'f': 'женский',
+    })
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     db: DatabaseConfig
     age: AgeConfig
+    gender: GenderConfig
 
 
 def load_config(path: str | None = None) -> Config:
@@ -51,5 +59,6 @@ def load_config(path: str | None = None) -> Config:
             db_user=env('DB_USER'),
             db_password=env('DB_PASSWORD')
         ),
-        age=AgeConfig()
+        age=AgeConfig(),
+        gender=GenderConfig()
     )

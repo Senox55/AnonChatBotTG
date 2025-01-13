@@ -13,9 +13,9 @@ router = Router()
 async def set_gender(message: Message, db, translator, state: FSMContext):
     if not await db.get_user_info(message.chat.id):
         if message.text == 'Я Парень 🙋‍♂️':
-            gender = 'male'
+            gender = 'm'
         elif message.text == 'Я Девушка 🙋‍♀️':
-            gender = 'female'
+            gender = 'f'
         else:
             return  # Если сообщение не соответствует ожиданиям, ничего не делаем
 

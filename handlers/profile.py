@@ -23,7 +23,7 @@ async def show_profile(message: Message, db, translator):
         profile_message = (
             f"<b>Ваш профиль</b>\n\n"
             f"💬 Чатов — {count_chats}\n"
-            f"Пол — {gender}\n"
+            f"Пол — {config.gender.genders.get(gender)}\n"
             f"Возраст - {config.age.age_ranges.get(age)}\n\n"
             "Выберите, что вы хотите изменить:"
         )
@@ -61,7 +61,7 @@ async def change_gender(message: Message, state: FSMContext, translator):
 
 @router.callback_query(F.data == 'set_male_pressed')
 async def process_set_male_gender(callback: CallbackQuery, db, translator):
-    await db.update_gender(callback.message.chat.id, 'male')
+    await db.update_gender(callback.message.chat.id, 'm')
     await callback.message.edit_text(
         translator.get('registered'),
         reply_markup=None)
@@ -70,7 +70,7 @@ async def process_set_male_gender(callback: CallbackQuery, db, translator):
 
 @router.callback_query(F.data == 'set_female_pressed')
 async def process_set_female_gender(callback: CallbackQuery, db, translator):
-    await db.update_gender(callback.message.chat.id, 'female')
+    await db.update_gender(callback.message.chat.id, 'f')
     await callback.message.edit_text(
         translator.get('registered'),
         reply_markup=None)
