@@ -45,7 +45,7 @@ async def process_set_male_gender(callback: CallbackQuery, db, translator):
     }
     age = age_mapping.get(callback.data)
     if age is None:
-        return  # Ignore unexpected callback data
+        return
 
     await db.set_age(callback.message.chat.id, age)
     await callback.message.edit_text(

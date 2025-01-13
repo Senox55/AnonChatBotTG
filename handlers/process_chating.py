@@ -1,4 +1,4 @@
-from aiogram import Dispatcher, Router
+from aiogram import Router
 from aiogram.types import Message
 
 from keyboards import *

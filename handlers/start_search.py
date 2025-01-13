@@ -1,7 +1,8 @@
-from aiogram import Dispatcher, F, Router, Bot
+from aiogram import F, Router
 from aiogram.types import Message
 from aiogram.filters import CommandStart, Command
 
+from filters.is_vip import IsVIP
 from keyboards import *
 
 router = Router()
@@ -61,11 +62,21 @@ async def start_search(message: Message, db, bot, translator, desired_gender: st
 
 
 @router.message(F.text == '👫Поиск по полу')
-async def process_choose_gender_search(message: Message, translator):
-    await message.answer(
-        translator.get('choose_search_gender'),
-        reply_markup=keyboard_choose_gender_search
-    )
+async def process_choose_gender_search(message: Message, db, translator):
+    is_vip = await IsVIP()(message, db)
+
+    if is_vip:
+        # Если есть VIP, показываем основной функционал
+        await message.answer(
+            translator.get('choose_search_gender'),
+            reply_markup=keyboard_choose_gender_search
+        )
+    else:
+        # Если нет VIP, предлагаем купить
+        await message.answer(
+            "🌟 Для доступа к поиску по полу необходим VIP статус.\n"
+            "Вы можете приобрести его за звезды Telegram Premium.",
+            reply_markup=buy_vip_keyboard)
 
 
 @router.message(CommandStart())
@@ -83,14 +94,14 @@ async def process_start_search_random_command(message: Message, db, bot, transla
     await start_search(message, db, bot, translator, desired_gender='anon')
 
 
-@router.message(F.text == 'Найти Парня 🙋‍♂️')
+@router.message(F.text == 'Найти Парня 🙋‍♂️', IsVIP())
 async def process_start_search_male_command(message: Message, db, bot, translator):
-    await start_search(message, db, bot, translator, desired_gender='male')
+    await start_search(message, db, bot, translator, desired_gender='m')
 
 
-@router.message(F.text == 'Найти Девушку 🙋‍♀️')
+@router.message(F.text == 'Найти Девушку 🙋‍♀️', IsVIP())
 async def process_start_search_female_command(message: Message, db, bot, translator):
-    await start_search(message, db, bot, translator, desired_gender='female')
+    await start_search(message, db, bot, translator, desired_gender='f')
 
 
 @router.message(F.text == '🔻 Назад')

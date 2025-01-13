@@ -7,8 +7,8 @@ from language.translator import Translator
 from middlewares.database import DataBaseMiddleware
 from middlewares.registration import RegistrationCheckMiddleware
 from middlewares.translator import TranslatorMiddleware
-from handlers import start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration, \
-    edit_profile
+from handlers import (start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration,
+                      edit_profile, buy_vip)
 
 
 async def main():
@@ -30,6 +30,7 @@ async def main():
     dp.update.middleware(TranslatorMiddleware())
 
     dp.include_router(registration.router)
+    dp.include_router(buy_vip.router)
     dp.include_router(profile.router)
     dp.include_router(edit_profile.router)
     dp.include_router(start_search.router)

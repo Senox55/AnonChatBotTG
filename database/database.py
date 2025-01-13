@@ -1,4 +1,5 @@
 import asyncpg
+from datetime import datetime, timedelta
 
 
 class Database():
@@ -122,3 +123,103 @@ class Database():
             user_id
         )
         return info if info else False
+
+    async def check_vip_status(self, user_id):
+        info = await self.connection.fetchrow(
+            'SELECT vip_id FROM users WHERE user_id = $1',
+            user_id
+        )
+        return info['vip_id']
+
+    async def get_vip_status(self, user_id):
+        info = await self.connection.fetchrow(
+            """SELECT *
+            FROM users as u
+            JOIN vip_statuses as v
+            ON u.vip_id = v.id
+            WHERE u.user_id = $1""",
+            user_id
+        )
+        if info:
+            return info
+        return False
+
+    async def give_vip(self, user_id: int, duration: int):
+        vip_status = await self.connection.fetchrow(
+            """
+            SELECT *
+            FROM users as u
+            JOIN vip_statuses as v
+            ON u.vip_id = v.id
+            WHERE u.user_id = $1 AND CURRENT_TIMESTAMP BETWEEN v.start_date AND v.end_date
+            """,
+            user_id
+        )
+
+        if vip_status:
+            # Если у пользователя уже есть активный VIP-статус, продлеваем его
+            await self.connection.execute(
+                """
+                UPDATE vip_statuses
+                SET end_date = end_date + make_interval(days => $1)
+                WHERE id = $2
+                """,
+                duration,  # Передаём строку вида '30 days'
+                vip_status['id']  # ID текущего VIP-статуса
+            )
+        else:
+            # Если активного VIP-статуса нет, создаём новый
+            start_date = datetime.now()
+            end_date = start_date + timedelta(days=duration)
+
+            # Создаём новую запись в таблице vip_statuses
+            new_vip_id = await self.connection.fetchval(
+                """
+                INSERT INTO vip_statuses (duration, start_date, end_date)
+                VALUES ($1, $2, $3)
+                RETURNING id
+                """,
+                duration, start_date, end_date
+            )
+
+            # Обновляем vip_id в таблице users
+            await self.connection.execute(
+                """
+                UPDATE users
+                SET vip_id = $1
+                WHERE user_id = $2
+                """,
+                new_vip_id, user_id
+            )
+
+    async def deactivate_vip_status(self, user_id):
+        vip_status = await self.connection.fetchrow(
+            """
+            SELECT v.id 
+            FROM users AS u
+            JOIN vip_statuses AS v
+            ON u.vip_id = v.id
+            WHERE u.user_id = $1
+            """,
+            user_id
+        )
+
+        if vip_status:
+            # Удаляем VIP-статус из таблицы vip_statuses
+            await self.connection.execute(
+                """
+                DELETE FROM vip_statuses
+                WHERE id = $1
+                """,
+                vip_status['id']
+            )
+
+            # Обнуляем поле vip_id в таблице users
+            await self.connection.execute(
+                """
+                UPDATE users
+                SET vip_id = NULL
+                WHERE user_id = $1
+                """,
+                user_id
+            )

@@ -13,6 +13,15 @@ async def show_profile(message: Message, db, translator):
     user_id = message.chat.id
     user_info = await db.get_user_info(user_id)
 
+    vip_status = await db.get_vip_status(user_id)
+
+    if vip_status:
+        vip_status_end_date = vip_status['end_date']
+        vip_status_end_date = f"Активен до {vip_status_end_date.strftime('%d.%m.%Y')}"
+    else:
+        # Если статус не активирован
+        vip_status_end_date = "Не активирован"
+
     if user_info:
         count_chats = user_info['count_chats']
         gender = user_info['gender']
@@ -23,6 +32,7 @@ async def show_profile(message: Message, db, translator):
             f"💬 Чатов — {count_chats}\n"
             f"Пол — {config.gender.genders.get(gender)}\n"
             f"Возраст - {config.age.age_ranges.get(age)}\n\n"
+            f"👑 VIP статус - {vip_status_end_date}\n\n"
             "Выберите, что вы хотите изменить:"
         )
 
@@ -37,4 +47,3 @@ async def process_show_profile_command(message: Message, db, translator):
 @router.message(F.text == '👤 Профиль')
 async def process_show_profile_button(message: Message, db, translator):
     await show_profile(message, db, translator)
-
