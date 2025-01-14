@@ -1,5 +1,5 @@
 from aiogram import F, Router
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from aiogram.filters import CommandStart, Command
 
 from filters.is_vip import IsVIP
@@ -62,7 +62,7 @@ async def start_search(message: Message, db, bot, translator, desired_gender: st
 
 
 @router.message(F.text == '👫Поиск по полу')
-async def process_choose_gender_search(message: Message, db, translator):
+async def process_choose_gender_search(message: Message, db, translator, bot):
     is_vip = await IsVIP()(message, db)
 
     if is_vip:
@@ -72,11 +72,11 @@ async def process_choose_gender_search(message: Message, db, translator):
             reply_markup=keyboard_choose_gender_search
         )
     else:
-        # Если нет VIP, предлагаем купить
-        await message.answer(
-            "🌟 Для доступа к поиску по полу необходим VIP статус.\n"
-            "Вы можете приобрести его за звезды Telegram Premium.",
-            reply_markup=buy_vip_keyboard)
+        vip_photo = r'C:\Users\very-\Desktop\Projects\AnonChatBotTG_stable\data\vip_description.png'
+        await bot.send_photo(message.chat.id,
+                             photo=FSInputFile(vip_photo),
+                             caption=translator.get('vip_description'),
+                             reply_markup=buy_vip_keyboard)
 
 
 @router.message(CommandStart())

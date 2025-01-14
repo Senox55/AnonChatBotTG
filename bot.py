@@ -12,11 +12,13 @@ from handlers import (start_search, stop_search, search_next, stop_dialog, profi
 
 
 async def main():
+    # Загружаем конфиги
     config = load_config('.env')
 
     bot = Bot(token=config.tg_bot.token)
     dp = Dispatcher()
 
+    # Databese pool
     db_pool = await get_pg_pool(
         db_name=config.db.database,
         host=config.db.db_host,
@@ -25,10 +27,12 @@ async def main():
         password=config.db.db_password
     )
 
+    # Иницализация middlewares
     dp.update.middleware(DataBaseMiddleware())
     dp.message.middleware(RegistrationCheckMiddleware())
     dp.update.middleware(TranslatorMiddleware())
 
+    # Иницализация routers
     dp.include_router(registration.router)
     dp.include_router(buy_vip.router)
     dp.include_router(profile.router)
