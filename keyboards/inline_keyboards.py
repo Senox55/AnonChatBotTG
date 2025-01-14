@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Инлайн-кнопка для редактирования профиля
 button_edit_profile_inline = InlineKeyboardButton(
-    text='Изменить профиль',
+    text='⚙️ Изменить профиль',
     callback_data='edit_profile_pressed'
 )
 

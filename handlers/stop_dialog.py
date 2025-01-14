@@ -50,7 +50,7 @@ async def process_stop_command(message: Message, db, bot, translator):
     await stop_dialog(message, db, bot, translator)
 
 
-@router.message(F.text == '❌ Завершить диалог')
+@router.message(F.text == '👋 Завершить чат')
 async def process_stop_button(message: Message, db, bot, translator):
     await stop_dialog(message, db, bot, translator)
 

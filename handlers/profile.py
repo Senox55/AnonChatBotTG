@@ -3,6 +3,7 @@ from aiogram.types import Message
 from aiogram.filters import Command
 
 from config_data.config import load_config
+from config_data.user_config import AGE, SEX
 from keyboards import *
 
 router = Router()
@@ -30,8 +31,8 @@ async def show_profile(message: Message, db, translator):
         profile_message = (
             f"<b>Ваш профиль</b>\n\n"
             f"💬 Чатов — {count_chats}\n"
-            f"Пол — {config.gender.genders.get(gender)}\n"
-            f"Возраст - {config.age.age_ranges.get(age)}\n\n"
+            f"Пол — {SEX[gender]}\n"
+            f"Возраст - {AGE[age]}\n\n"
             f"👑 VIP статус - {vip_status_end_date}\n\n"
             "Выберите, что вы хотите изменить:"
         )

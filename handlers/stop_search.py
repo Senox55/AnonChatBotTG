@@ -6,7 +6,7 @@ from keyboards import *
 router = Router()
 
 
-@router.message(F.text == '✋ Остановить поиск')
+@router.message(F.text == '✋ Отменить поиск')
 async def process_finish_search_command(message: Message, db, translator):
     # Проверяем, находится ли пользователь в очереди
     is_in_queue = await db.is_in_queue(message.chat.id)

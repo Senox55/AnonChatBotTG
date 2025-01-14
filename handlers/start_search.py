@@ -26,9 +26,9 @@ async def start_search(message: Message, db, bot, translator, desired_gender: st
             if not await db.create_chat(message.chat.id, chat_two):
 
                 await db.add_queue(message.chat.id, await db.get_gender(message.chat.id), desired_gender)
-                if desired_gender == 'male':
+                if desired_gender == 'm':
                     search_message = translator.get('start_search_male')
-                elif desired_gender == 'female':
+                elif desired_gender == 'f':
                     search_message = translator.get('start_search_female')
                 else:
                     search_message = translator.get('start_search')
@@ -104,7 +104,7 @@ async def process_start_search_female_command(message: Message, db, bot, transla
     await start_search(message, db, bot, translator, desired_gender='f')
 
 
-@router.message(F.text == '🔻 Назад')
+@router.message(F.text == '↩️ Назад')
 async def process_cancel_choose_gender_for_search(message: Message, translator):
     await message.answer(
         translator.get('cancel_choose_search_gender'),

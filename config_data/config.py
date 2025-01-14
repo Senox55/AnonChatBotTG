@@ -17,31 +17,9 @@ class TgBot:
 
 
 @dataclass
-class AgeConfig:
-    age_ranges: dict[str, str] = field(default_factory=lambda: {
-        17: 'до 17 лет',
-        21: 'от 18 до 21 года',
-        25: 'от 22 до 25 лет',
-        35: 'от 26 до 35 лет',
-        45: 'от 36 до 45 лет',
-        46: 'старше 46',
-    })
-
-
-@dataclass
-class GenderConfig:
-    genders: dict[str, str] = field(default_factory=lambda: {
-        'm': 'мужской',
-        'f': 'женский',
-    })
-
-
-@dataclass
 class Config:
     tg_bot: TgBot
     db: DatabaseConfig
-    age: AgeConfig
-    gender: GenderConfig
 
 
 def load_config(path: str | None = None) -> Config:
@@ -58,7 +36,5 @@ def load_config(path: str | None = None) -> Config:
             db_port=env('DB_PORT'),
             db_user=env('DB_USER'),
             db_password=env('DB_PASSWORD')
-        ),
-        age=AgeConfig(),
-        gender=GenderConfig()
+        )
     )

@@ -31,20 +31,20 @@ async def set_gender(message: Message, db, translator, state: FSMContext):
 
 
 @router.message(
-    F.text.in_(['до 17 лет', 'от 18 до 21 года', 'от 22 до 25 лет', 'от 26 до 35 лет', 'от 36 до 45 лет', 'старше 46']),
+    F.text.in_(['📍 До 17', '📍 18-21', '📍 22-25', '📍 26-35', '📍 36-45', '📍 46+']),
     StateFilter(RegistrationFSM.fill_age))
 async def set_age(message: Message, db, translator, state: FSMContext):
-    if message.text == 'до 17 лет':
+    if message.text == '📍 До 17':
         age = 17
-    elif message.text == 'от 18 до 21 года':
+    elif message.text == '📍 18-21':
         age = 21
-    elif message.text == 'от 22 до 25 лет':
+    elif message.text == '📍 22-25':
         age = 25
-    elif message.text == 'от 26 до 35 лет':
+    elif message.text == '📍 26-35':
         age = 35
-    elif message.text == 'от 36 до 45 лет':
+    elif message.text == '📍 36-45':
         age = 45
-    elif message.text == 'старше 46':
+    elif message.text == '📍 46+':
         age = 46
     else:
         return  # Если сообщение не соответствует ожиданиям, ничего не делаем
