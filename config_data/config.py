@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from environs import Env
 
 
@@ -6,7 +6,7 @@ from environs import Env
 class DatabaseConfig:
     database: str  # Название базы данных
     db_host: str  # Адрес базы данных
-    db_port: str  # Порт базы данных
+    db_port: int  # Порт базы данных
     db_user: str  # Username пользователя базы данных
     db_password: str  # Пароль к базе данных
 
