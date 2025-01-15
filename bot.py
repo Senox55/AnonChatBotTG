@@ -7,6 +7,7 @@ from language.translator import Translator
 from middlewares.database import DataBaseMiddleware
 from middlewares.registration import RegistrationCheckMiddleware
 from middlewares.translator import TranslatorMiddleware
+from middlewares.vip_checker import VipCheckMiddleware
 from handlers import (start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration,
                       edit_profile, buy_vip)
 
@@ -29,8 +30,9 @@ async def main():
 
     # Иницализация middlewares
     dp.update.middleware(DataBaseMiddleware())
-    dp.message.middleware(RegistrationCheckMiddleware())
     dp.update.middleware(TranslatorMiddleware())
+    dp.message.middleware(RegistrationCheckMiddleware())
+    dp.message.middleware(VipCheckMiddleware())
 
     # Иницализация routers
     dp.include_router(registration.router)

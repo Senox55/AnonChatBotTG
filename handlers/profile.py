@@ -18,7 +18,7 @@ async def show_profile(message: Message, db, translator):
 
     if vip_status:
         vip_status_end_date = vip_status['end_date']
-        vip_status_end_date = f"Активен до {vip_status_end_date.strftime('%d.%m.%Y')}"
+        vip_status_end_date = f"Активен до {vip_status_end_date.strftime('%d.%m.%Y %H:%M:%S')}"
     else:
         # Если статус не активирован
         vip_status_end_date = "Не активирован"
