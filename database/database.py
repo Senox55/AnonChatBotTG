@@ -218,8 +218,39 @@ class Database():
             await self.connection.execute(
                 """
                 UPDATE users
-                SET vip_id = NULL
+                SET vip_id = NULL 
                 WHERE user_id = $1
                 """,
                 user_id
             )
+
+    async def is_alive(self, user_id):
+        is_alive = await self.connection.fetchrow(
+            """
+            SELECT is_alive
+            FROM users
+            WHERE user_id = $1
+            """,
+            user_id
+        )
+        return is_alive["is_alive"]
+
+    async def set_alive_to_false(self, user_id):
+        await self.connection.execute(
+            """
+            UPDATE users
+            set is_alive = False
+            WHERE user_id = $1
+            """,
+            user_id
+        )
+
+    async def set_alive_to_true(self, user_id):
+        await self.connection.execute(
+            """
+            UPDATE users
+            set is_alive = True
+            WHERE user_id = $1
+            """,
+            user_id
+        )

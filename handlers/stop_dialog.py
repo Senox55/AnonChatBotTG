@@ -2,7 +2,6 @@ from aiogram import Dispatcher, F, Router
 from aiogram.types import Message
 from aiogram.filters import Command
 
-
 from keyboards import *
 
 router = Router()
@@ -28,8 +27,7 @@ async def stop_dialog(message: Message, db, bot, translator):
         await bot.send_message(
             chat_info[1],
             translator.get('interlocutor_stop_dialog'),
-            reply_markup=keyboard_before_start_search
-        )
+            reply_markup=keyboard_before_start_search)
     else:
         is_in_queue = await db.is_in_queue(message.chat.id)
         if is_in_queue:
@@ -53,5 +51,3 @@ async def process_stop_command(message: Message, db, bot, translator):
 @router.message(F.text == '👋 Завершить чат')
 async def process_stop_button(message: Message, db, bot, translator):
     await stop_dialog(message, db, bot, translator)
-
-
