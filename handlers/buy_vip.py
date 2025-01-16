@@ -8,55 +8,13 @@ router = Router()
 config = load_config('.env')
 
 
-@router.callback_query(F.data == "buy_vip_stars_for_7_days")
+@router.callback_query(F.data.startswith("buy_vip_stars_for_"))
 async def process_buy_vip(callback: CallbackQuery, bot):
     # Получаем параметры для выбранного типа доступа
-    data = '7_days'
+    data = callback.data.replace("buy_vip_stars_for_", "")
     vip_data = VIP_CONFIG[data]
 
     # Отправляем пользователю ссылку на оплату
-    await bot.send_invoice(
-        chat_id=callback.from_user.id,
-        title="VIP доступ",
-        description=vip_data["description"],  # Описание из конфигов
-        payload=f"vip_access_{data}",
-        provider_token=PROVIDER_TOKEN,
-        currency=CURRENCY,  # Валюта из конфигов
-        prices=[
-            LabeledPrice(
-                label=vip_data["label"],
-                amount=vip_data["amount"]
-            )
-        ])
-
-
-@router.callback_query(F.data == "buy_vip_stars_for_1_month")
-async def process_buy_vip(callback: CallbackQuery, bot):
-    # Получаем параметры для выбранного типа доступа
-    data = '1_month'
-    vip_data = VIP_CONFIG[data]
-
-    await bot.send_invoice(
-        chat_id=callback.from_user.id,
-        title="VIP доступ",
-        description=vip_data["description"],  # Описание из конфигов
-        payload=f"vip_access_{data}",
-        provider_token=PROVIDER_TOKEN,
-        currency=CURRENCY,  # Валюта из конфигов
-        prices=[
-            LabeledPrice(
-                label=vip_data["label"],
-                amount=vip_data["amount"]
-            )
-        ])
-
-
-@router.callback_query(F.data == "buy_vip_stars_for_1_year")
-async def process_buy_vip(callback: CallbackQuery, bot):
-    # Получаем параметры для выбранного типа доступа
-    data = '1_year'
-    vip_data = VIP_CONFIG[data]
-
     await bot.send_invoice(
         chat_id=callback.from_user.id,
         title="VIP доступ",
@@ -79,7 +37,7 @@ async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery, bot):
 
 
 @router.message(lambda message: message.successful_payment is not None)
-async def process_successful_payment(message: Message, bot, db):
+async def process_successful_payment(message: Message, db, translator):
     """
     Обрабатываем успешный платеж.
     """
@@ -87,11 +45,10 @@ async def process_successful_payment(message: Message, bot, db):
     payload = message.successful_payment.invoice_payload
 
     if "vip_access" in payload:
-
         vip_type = payload.replace("vip_access_", "")
         duration = VIP_CONFIG[vip_type]['duration']  # Извлекаем длительность из конфигов
 
         # Активируем VIP-доступ в базе данных
         await db.give_vip(message.from_user.id, duration=duration)
 
-        await message.answer(f"Спасибо за оплату! Ваш VIP-доступ активирован на {payload.split('_')[-1]}!")
+        await message.answer(translator.get("when_user_bought_vip"))

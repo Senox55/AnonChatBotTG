@@ -17,11 +17,12 @@ async def show_profile(message: Message, db, translator):
     vip_status = await db.get_vip_status(user_id)
 
     if vip_status:
-        vip_status_end_date = vip_status['end_date']
-        vip_status_end_date = f"Активен до {vip_status_end_date.strftime('%d.%m.%Y %H:%M:%S')}"
+        vip_status_end_date = vip_status['end_date'].strftime('%d.%m.%Y %H:%M:%S')
+        vip_status_message = translator.get(
+            "vip-status-active", date=vip_status_end_date
+        )
     else:
-        # Если статус не активирован
-        vip_status_end_date = "Не активирован"
+        vip_status_message = translator.get("vip-status-inactive")
 
     if user_info:
         count_chats = user_info['count_chats']
@@ -29,12 +30,12 @@ async def show_profile(message: Message, db, translator):
         age = user_info['age']
 
         profile_message = (
-            f"<b>Ваш профиль</b>\n\n"
-            f"💬 Чатов — {count_chats}\n"
-            f"Пол — {SEX[gender]}\n"
-            f"Возраст - {AGE[age]}\n\n"
-            f"👑 VIP статус - {vip_status_end_date}\n\n"
-            "Выберите, что вы хотите изменить:"
+            f"<b>{translator.get('profile-header')}</b>\n\n"
+            f"{translator.get('chat-count', count=count_chats)}\n"
+            f"{translator.get('gender', gender=SEX[gender])}\n"
+            f"{translator.get('age', age=AGE[age])}\n\n"
+            f"{translator.get('vip-status', vip_status=vip_status_message)}\n\n"
+            f"{translator.get('profile-footer')}"
         )
 
         await message.answer(profile_message, parse_mode="HTML", reply_markup=keyboard_edit_profile_inline)

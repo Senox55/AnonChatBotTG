@@ -19,6 +19,4 @@ async def get_pg_pool(
         max_size=3,
     )
 
-    version = await db_pool.fetchrow("SELECT version() as ver;")
-
     return db_pool
