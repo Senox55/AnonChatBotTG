@@ -2,7 +2,7 @@ from aiogram import F, Router
 from aiogram.types import Message, FSInputFile
 from aiogram.filters import CommandStart, Command
 
-from filters.is_vip import IsVIP
+from filters.is_vip_filter import IsVIP
 from keyboards import *
 
 router = Router()
@@ -76,7 +76,7 @@ async def process_choose_gender_search(message: Message, db, translator, bot):
         await bot.send_photo(message.chat.id,
                              photo=FSInputFile(vip_photo),
                              caption=translator.get('vip_description'),
-                             reply_markup=buy_vip_keyboard)
+                             reply_markup=buy_vip_keyboard_inline)
 
 
 @router.message(CommandStart())

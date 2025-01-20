@@ -254,3 +254,61 @@ class Database():
             """,
             user_id
         )
+
+    async def get_desired_gender(self, user_id):
+        await self.connection.fetchrow(
+            """
+            SELECT desired_gender
+            FROM users
+            WHERE user_id = $1
+            """,
+            user_id
+        )
+
+    async def get_user_state(self, user_id):
+        state_info = await self.connection.fetchrow(
+            """
+            SELECT state, data
+            FROM user_states
+            WHERE user_id = $1
+            """,
+            user_id
+        )
+        return state_info
+
+    async def clear_user_state(self, user_id):
+        await self.connection.execute(
+            """
+            DELETE
+            FROM user_states
+            WHERE user_id = $1
+            """,
+            user_id
+        )
+
+    async def set_user_state(self, user_id, state, data='{}'):
+        user_info = await self.connection.fetchrow(
+            """
+            SELECT 1 FROM user_states WHERE user_id = $1
+            """,
+            user_id)
+        if user_info:
+            await self.connection.execute(
+                """
+                UPDATE user_states
+                SET state = $1, data = $2
+                WHERE user_id = $3
+                """,
+                state,
+                data,
+                user_id
+            )
+        else:
+            await self.connection.execute(
+                """
+                INSERT INTO user_states (user_id, state, data) VALUES ($1, $2, $3)
+                """,
+                user_id,
+                state,
+                data
+            )

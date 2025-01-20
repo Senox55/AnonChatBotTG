@@ -17,6 +17,9 @@ async def stop_dialog(message: Message, db, bot, translator):
         await increment_chat_count(message.chat.id, db)
         await increment_chat_count(chat_info[1], db)
 
+        await db.clear_user_state(message.chat.id)
+        await db.clear_user_state(chat_info[1])
+
         await db.delete_chat(chat_info[0])
 
         await bot.send_message(

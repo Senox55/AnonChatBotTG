@@ -1,5 +1,6 @@
 import asyncio
 from aiogram import Bot, Dispatcher
+from aiogram.fsm.storage.memory import MemoryStorage
 
 from config_data.config import load_config
 from database.utils import get_pg_pool
@@ -10,7 +11,7 @@ from middlewares.translator import TranslatorMiddleware
 from middlewares.vip_checker import VipCheckMiddleware
 from middlewares.is_alive import IsAliveCheckMiddleware
 from handlers import (start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration,
-                      edit_profile, buy_vip, block_bot)
+                      edit_profile, buy_vip, block_bot, choose_games, game_xo, invite_games)
 
 
 async def main():
@@ -18,7 +19,7 @@ async def main():
     config = load_config('.env')
 
     bot = Bot(token=config.tg_bot.token)
-    dp = Dispatcher()
+    dp = Dispatcher(storage=MemoryStorage())
 
     # Databese pool
     db_pool = await get_pg_pool(
@@ -32,8 +33,8 @@ async def main():
     # Иницализация middlewares
     dp.update.middleware(DataBaseMiddleware())
     dp.update.middleware(TranslatorMiddleware())
-    dp.message.middleware(IsAliveCheckMiddleware())
     dp.message.middleware(RegistrationCheckMiddleware())
+    dp.message.middleware(IsAliveCheckMiddleware())
     dp.message.middleware(VipCheckMiddleware())
 
     # Иницализация routers
@@ -46,6 +47,9 @@ async def main():
     dp.include_router(stop_search.router)
     dp.include_router(search_next.router)
     dp.include_router(stop_dialog.router)
+    dp.include_router(choose_games.router)
+    dp.include_router(invite_games.router)
+    dp.include_router(game_xo.router)
     dp.include_router(process_chating.router)
 
     await bot.delete_webhook(drop_pending_updates=True)

@@ -1,15 +1,20 @@
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
+import logging
 
 from keyboards import *
 
 router = Router()
+logging.basicConfig(level=logging.INFO)
 
 
 @router.message(Command(commands=['next']))
 async def process_next_command(message: Message, db, bot, translator, desired_gender='anon'):
     chat_info = await db.get_active_chat(message.chat.id)
+    user_id = message.chat.id
+    desired_gender = await db.get_desired_gender(user_id)
+    logging.info(f"User {user_id} have desired gender = {desired_gender}")
     if chat_info:
         await db.delete_chat(chat_info[0])
         await bot.send_message(
