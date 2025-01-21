@@ -11,15 +11,15 @@ logging.basicConfig(level=logging.INFO)
 
 @router.message(Command(commands=['next']))
 async def process_next_command(message: Message, db, bot, translator):
-    chat_info = await db.get_active_chat(message.chat.id)
     user_id = message.chat.id
+    chat_info = await db.get_active_chat(user_id)
 
     preferred_gender = await db.get_preferred_gender(user_id)
     logging.info(f"User {user_id} have preferred gender = {preferred_gender}")
     if chat_info:
         await db.delete_chat(chat_info[0])
         await bot.send_message(
-            message.chat.id,
+            user_id,
             translator.get('evaluate_interlocutor'),
             reply_markup=keyboard_evaluate_interlocutor
         )
@@ -35,20 +35,20 @@ async def process_next_command(message: Message, db, bot, translator):
             reply_markup=keyboard_evaluate_interlocutor
         )
 
-    is_in_queue = await db.is_in_queue(message.chat.id)
-    chat_info = await db.get_active_chat(message.chat.id)
+    is_in_queue = await db.is_in_queue(user_id)
+    chat_info = await db.get_active_chat(user_id)
 
-    chat_two = await db.get_chat(await db.get_gender(message.chat.id), preferred_gender)
+    chat_two = await db.get_chat(await db.get_gender(user_id), preferred_gender)
 
     if not is_in_queue:
         if not chat_info:
-            if not await db.create_chat(message.chat.id, chat_two):
-                pass
+            if not await db.create_chat(user_id, chat_two):
+                await db.add_queue(user_id)
 
             else:
                 mess = translator.get('found_interlocutor')
                 await bot.send_message(
-                    message.chat.id,
+                    user_id,
                     mess,
                     reply_markup=keyboard_after_find_dialog
                 )
