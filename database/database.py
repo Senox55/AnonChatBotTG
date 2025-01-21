@@ -6,73 +6,92 @@ class Database():
     def __init__(self, connection: asyncpg.Pool):
         self.connection = connection
 
-    async def add_queue(self, user_id: int, gender: str, desired_gender: str):
-        await self.connection.execute("INSERT INTO queue (user_id, gender, desired_gender) VALUES ($1, $2, $3)",
-                                      user_id, gender, desired_gender)
-
-        return True  # Возвращаем результат, если нужно
+    async def add_queue(self, user_id: int):
+        await self.connection.execute("INSERT INTO queue (user_id) VALUES ($1)",
+                                      user_id)
 
     async def delete_queue(self, user_id):
-        status = await self.connection.execute("DELETE FROM queue WHERE user_id = $1",
-                                               user_id)
-
-        return status.split()[-1]  # Возвращает количество удалённых строк
+        await self.connection.execute("DELETE FROM queue WHERE user_id = $1",
+                                      user_id)
 
     async def delete_chat(self, chat_id):
-        status = await self.connection.execute("DELETE FROM chats WHERE id = $1",
-                                               chat_id)
-        return status.split()[-1]  # Возвращает количество удалённых строк
+        await self.connection.execute("DELETE FROM chats WHERE id = $1",
+                                      chat_id)
 
     async def set_gender(self, user_id, gender):
-        user = await self.connection.fetch(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        user = await self.connection.fetch(f"SELECT * FROM users WHERE id = $1", user_id)
         if not user:
-            await self.connection.execute("INSERT INTO users (user_id, gender) VALUES ($1, $2)", user_id, gender)
+            await self.connection.execute("INSERT INTO users (id, gender) VALUES ($1, $2)", user_id, gender)
             return True
         else:
             return False
 
     async def update_gender(self, user_id, gender):
-        user = await self.connection.fetch(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        user = await self.connection.fetch(f"SELECT * FROM users WHERE id = $1", user_id)
         if user:
-            await self.connection.execute('UPDATE users SET gender = $1 WHERE user_id = $2', gender, user_id)
+            await self.connection.execute('UPDATE users SET gender = $1 WHERE id = $2', gender, user_id)
             return True
         else:
             return False
 
     async def get_gender(self, user_id):
-        user = await self.connection.fetchrow(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        user = await self.connection.fetchrow(f"SELECT * FROM users WHERE id = $1", user_id)
         return user['gender'] if user else False
 
     async def get_age(self, user_id):
-        user = await self.connection.fetchrow(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        user = await self.connection.fetchrow(f"SELECT * FROM users WHERE id = $1", user_id)
         return user['age'] if user else False
 
     async def set_age(self, user_id, age):
-        user = await self.connection.fetch(f"SELECT * FROM users WHERE user_id = $1", user_id)
+        user = await self.connection.fetch(f"SELECT * FROM users WHERE id = $1", user_id)
         if user:
-            await self.connection.execute("UPDATE users SET age = $1 WHERE user_id = $2", age, user_id)
+            await self.connection.execute("UPDATE users SET age = $1 WHERE id = $2", age, user_id)
             return True
         else:
             return False
 
-    async def get_chat(self, gender, desired_gender):
-        if desired_gender != 'anon':
-            if gender != 'anon':
-                chat = await self.connection.fetchrow("SELECT * FROM queue WHERE gender = $1 AND desired_gender = $2",
-                                                      desired_gender, gender)
-            else:
-                chat = await self.connection.fetchrow("SELECT * FROM queue WHERE gender = $1",
-                                                      desired_gender)
+    async def set_preferred_gender(self, user_id, preferred_gender):
+        await self.connection.fetchrow(
+            """
+            UPDATE users SET preferred_gender = $1 WHERE id = $2
+            """,
+            preferred_gender,
+            user_id
+        )
+
+    async def get_preferred_gender(self, user_id):
+        await self.connection.fetchrow(
+            """
+            SELECT preferred_gender
+            FROM users
+            WHERE id = $1
+            """,
+            user_id
+        )
+
+    async def get_chat(self, gender, preferred_gender):
+        if preferred_gender:
+            chat = await self.connection.fetchrow(
+                """SELECT u.id
+                    FROM queue AS q
+                    JOIN users AS u
+                        ON q.user_id = u.id
+                    WHERE u.gender = $1 AND (u.preferred_gender = $2 OR u.preferred_gender IS NULL)""",
+                preferred_gender, gender)
         else:
 
             chat = await self.connection.fetchrow(
-                "SELECT user_id, gender, desired_gender FROM queue WHERE desired_gender IN ($1, 'anon')",
+                """SELECT u.id
+                FROM queue AS q
+                JOIN users AS u
+                    ON q.user_id = u.id
+                WHERE (u.preferred_gender = $1 OR u.preferred_gender IS NULL)""",
                 gender
             )
 
         if chat:
-            return chat['user_id']
-        return 0
+            return chat['id']
+        return False
 
     async def create_chat(self, user_id_one, user_id_two):
         if user_id_two:
@@ -100,16 +119,11 @@ class Database():
         return False
 
     async def increment_chat_count(self, user_id):
-        exists = await self.connection.execute('UPDATE users SET count_chats = count_chats + 1 WHERE user_id = $1',
+        exists = await self.connection.execute('UPDATE users SET count_chats = count_chats + 1 WHERE id = $1',
                                                user_id)
         return exists
 
     async def is_in_queue(self, user_id: int) -> bool:
-        """
-        Проверяет, находится ли пользователь в очереди.
-        :param chat_id: ID чата пользователя
-        :return: True, если пользователь в очереди, иначе False
-        """
 
         exists = await self.connection.fetchval(
             "SELECT EXISTS(SELECT 1 FROM queue WHERE user_id = $1)",
@@ -119,14 +133,14 @@ class Database():
 
     async def get_user_info(self, user_id):
         info = await self.connection.fetchrow(
-            'SELECT * FROM users WHERE user_id = $1',
+            'SELECT * FROM users WHERE id = $1',
             user_id
         )
         return info if info else False
 
     async def check_vip_status(self, user_id):
         info = await self.connection.fetchrow(
-            'SELECT vip_id FROM users WHERE user_id = $1',
+            """SELECT vip_id FROM users WHERE user_id = $1""",
             user_id
         )
         return info['vip_id']
@@ -134,9 +148,7 @@ class Database():
     async def get_vip_status(self, user_id):
         info = await self.connection.fetchrow(
             """SELECT *
-            FROM users as u
-            JOIN vip_statuses as v
-            ON u.vip_id = v.id
+            FROM vip_statuses as u
             WHERE u.user_id = $1""",
             user_id
         )
@@ -145,16 +157,7 @@ class Database():
         return False
 
     async def give_vip(self, user_id: int, duration: int):
-        vip_status = await self.connection.fetchrow(
-            """
-            SELECT *
-            FROM users as u
-            JOIN vip_statuses as v
-            ON u.vip_id = v.id
-            WHERE u.user_id = $1 AND CURRENT_TIMESTAMP BETWEEN v.start_date AND v.end_date
-            """,
-            user_id
-        )
+        vip_status = self.get_vip_status(user_id)
 
         if vip_status:
             # Если у пользователя уже есть активный VIP-статус, продлеваем его
@@ -162,10 +165,10 @@ class Database():
                 """
                 UPDATE vip_statuses
                 SET end_date = end_date + make_interval(days => $1)
-                WHERE id = $2
+                WHERE user_id = $2
                 """,
                 duration,  # Передаём строку вида '30 days'
-                vip_status['id']  # ID текущего VIP-статуса
+                user_id
             )
         else:
             # Если активного VIP-статуса нет, создаём новый
@@ -173,63 +176,31 @@ class Database():
             end_date = start_date + timedelta(days=duration)
 
             # Создаём новую запись в таблице vip_statuses
-            new_vip_id = await self.connection.fetchval(
-                """
-                INSERT INTO vip_statuses (duration, start_date, end_date)
-                VALUES ($1, $2, $3)
-                RETURNING id
-                """,
-                duration, start_date, end_date
-            )
-
-            # Обновляем vip_id в таблице users
             await self.connection.execute(
                 """
-                UPDATE users
-                SET vip_id = $1
-                WHERE user_id = $2
+                INSERT INTO vip_statuses (user_id, duration, start_date, end_date)
+                VALUES ($1, $2, $3, $4)
+                RETURNING id
                 """,
-                new_vip_id, user_id
+                user_id, duration, start_date, end_date
             )
 
     async def deactivate_vip_status(self, user_id):
-        vip_status = await self.connection.fetchrow(
+        await self.connection.execute(
             """
-            SELECT v.id 
-            FROM users AS u
-            JOIN vip_statuses AS v
-            ON u.vip_id = v.id
-            WHERE u.user_id = $1
+            DELETE
+            FROM vip_statuses
+            WHERE user_id = $1
             """,
             user_id
         )
-
-        if vip_status:
-            # Удаляем VIP-статус из таблицы vip_statuses
-            await self.connection.execute(
-                """
-                DELETE FROM vip_statuses
-                WHERE id = $1
-                """,
-                vip_status['id']
-            )
-
-            # Обнуляем поле vip_id в таблице users
-            await self.connection.execute(
-                """
-                UPDATE users
-                SET vip_id = NULL 
-                WHERE user_id = $1
-                """,
-                user_id
-            )
 
     async def is_alive(self, user_id):
         is_alive = await self.connection.fetchrow(
             """
             SELECT is_alive
             FROM users
-            WHERE user_id = $1
+            WHERE id = $1
             """,
             user_id
         )
@@ -240,7 +211,7 @@ class Database():
             """
             UPDATE users
             set is_alive = False
-            WHERE user_id = $1
+            WHERE id = $1
             """,
             user_id
         )
@@ -250,17 +221,7 @@ class Database():
             """
             UPDATE users
             set is_alive = True
-            WHERE user_id = $1
-            """,
-            user_id
-        )
-
-    async def get_desired_gender(self, user_id):
-        await self.connection.fetchrow(
-            """
-            SELECT desired_gender
-            FROM users
-            WHERE user_id = $1
+            WHERE id = $1
             """,
             user_id
         )

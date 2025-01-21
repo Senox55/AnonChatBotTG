@@ -2,6 +2,7 @@ from aiogram import F, Router
 from aiogram.types import Message
 from aiogram.filters import Command
 import logging
+import json
 
 from keyboards import *
 from filters.is_in_chat_filter import IsINChat
@@ -20,10 +21,12 @@ async def process_choose_game_command(message: Message, db, translator):
     if user_state_info:
         user_state = user_state_info['state']
 
-        if user_state in ["waiting_for_start", "playing", "player1_turn", "player2_turn"]:
+        if user_state in ["waiting_for_opponent", "waiting_for_start", "playing", "player1_turn", "player2_turn"]:
             await message.answer(
                 translator.get('start_play_when_in_game'))
             return
+    else:
+        await db.set_user_state(user_id, "waiting_for_opponent")
 
     if chat_info:
         logging.info(f"user {user_id} choose game")
