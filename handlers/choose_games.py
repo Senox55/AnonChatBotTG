@@ -12,8 +12,7 @@ logging.basicConfig(level=logging.INFO)
 router = Router()
 
 
-@router.message(Command(commands=['play']), IsINChat())
-async def process_choose_game_command(message: Message, db, translator):
+async def process_choose_game(message: Message, db, translator):
     user_id = message.chat.id
     chat_info = await db.get_active_chat(user_id)
 
@@ -38,3 +37,13 @@ async def process_choose_game_command(message: Message, db, translator):
         await message.answer(
             translator.get('when_not_in_dialog'),
             reply_markup=keyboard_before_start_search)
+
+
+@router.message(Command(commands=['play']), IsINChat())
+async def process_choose_game_command(message: Message, db, translator):
+    await process_choose_game(message, db, translator)
+
+
+@router.message(F.text == '🎲 Сыграть в игру', IsINChat())
+async def process_choose_game_button(message: Message, db, translator):
+    await process_choose_game(message, db, translator)

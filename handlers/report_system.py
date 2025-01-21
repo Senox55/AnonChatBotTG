@@ -8,7 +8,7 @@ router = Router()
 config = load_config('.env')
 
 
-@router.callback_query(F.data.startswith('report-'))
+@router.callback_query(F.data == 'report')
 async def process_choose_report_reason(callback: CallbackQuery, translator):
     await callback.message.edit_text(
         translator.get('choose_report_reason'),
@@ -33,6 +33,7 @@ async def process_report(callback: CallbackQuery, translator, db):
     # reason = callback.data.split('_')[1]
     #
     # db.send_report(reporter_user_id, reason)
+    print(1)
 
     await callback.message.edit_text(
         translator.get('thanks_for_feedback'),

@@ -43,7 +43,18 @@ async def process_next_command(message: Message, db, bot, translator):
     if not is_in_queue:
         if not chat_info:
             if not await db.create_chat(user_id, chat_two):
-                await db.add_queue(user_id)
+                await db.add_queue(message.chat.id)
+
+                if preferred_gender == 'm':
+                    search_message = translator.get('start_search_male')
+                elif preferred_gender == 'f':
+                    search_message = translator.get('start_search_female')
+                else:
+                    search_message = translator.get('start_search')
+                await message.answer(
+                    search_message,
+                    reply_markup=keyboard_after_start_research
+                )
 
             else:
                 mess = translator.get('found_interlocutor')

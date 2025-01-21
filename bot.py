@@ -12,7 +12,7 @@ from middlewares.vip_checker import VipCheckMiddleware
 from middlewares.is_alive import IsAliveCheckMiddleware
 from handlers import (start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration,
                       edit_profile, buy_vip, block_bot, choose_games, game_xo, invite_games, reputation_system,
-                      report_system)
+                      report_system, vip_command)
 
 
 async def main():
@@ -42,6 +42,7 @@ async def main():
     dp.include_router(block_bot.router)
     dp.include_router(registration.router)
     dp.include_router(buy_vip.router)
+    dp.include_router(vip_command.router)
     dp.include_router(profile.router)
     dp.include_router(edit_profile.router)
     dp.include_router(start_search.router)

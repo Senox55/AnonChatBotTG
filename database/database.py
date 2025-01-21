@@ -157,7 +157,7 @@ class Database():
         return False
 
     async def give_vip(self, user_id: int, duration: int):
-        vip_status = self.get_vip_status(user_id)
+        vip_status = await self.get_vip_status(user_id)
 
         if vip_status:
             # Если у пользователя уже есть активный VIP-статус, продлеваем его
@@ -180,7 +180,6 @@ class Database():
                 """
                 INSERT INTO vip_statuses (user_id, duration, start_date, end_date)
                 VALUES ($1, $2, $3, $4)
-                RETURNING id
                 """,
                 user_id, duration, start_date, end_date
             )

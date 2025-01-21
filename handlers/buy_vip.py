@@ -51,4 +51,4 @@ async def process_successful_payment(message: Message, db, translator):
         # Активируем VIP-доступ в базе данных
         await db.give_vip(message.from_user.id, duration=duration)
 
-        await message.answer(translator.get("when_user_bought_vip"))
+        await message.answer(translator.get("when_user_bought_vip", duration=duration))
