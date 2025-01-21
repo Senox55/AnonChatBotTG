@@ -20,8 +20,6 @@ async def stop_dialog(message: Message, db, bot, translator):
         await db.clear_user_state(message.chat.id)
         await db.clear_user_state(chat_info[1])
 
-        await db.delete_chat(chat_info[0])
-
         await bot.send_message(
             message.chat.id,
             translator.get('stop_dialog'),
@@ -44,6 +42,9 @@ async def stop_dialog(message: Message, db, bot, translator):
             translator.get('evaluate_interlocutor'),
             reply_markup=keyboard_evaluate_interlocutor
         )
+
+        await db.delete_chat(chat_info[0])
+
     else:
         is_in_queue = await db.is_in_queue(message.chat.id)
         if is_in_queue:

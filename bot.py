@@ -11,7 +11,8 @@ from middlewares.translator import TranslatorMiddleware
 from middlewares.vip_checker import VipCheckMiddleware
 from middlewares.is_alive import IsAliveCheckMiddleware
 from handlers import (start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration,
-                      edit_profile, buy_vip, block_bot, choose_games, game_xo, invite_games, reputation_system)
+                      edit_profile, buy_vip, block_bot, choose_games, game_xo, invite_games, reputation_system,
+                      report_system)
 
 
 async def main():
@@ -48,6 +49,7 @@ async def main():
     dp.include_router(search_next.router)
     dp.include_router(stop_dialog.router)
     dp.include_router(reputation_system.router)
+    dp.include_router(report_system.router)
     dp.include_router(choose_games.router)
     dp.include_router(invite_games.router)
     dp.include_router(game_xo.router)

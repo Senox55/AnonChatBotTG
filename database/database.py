@@ -273,3 +273,23 @@ class Database():
                 state,
                 data
             )
+
+    async def send_report(self, reported_user_id, reporter_user_id, reason):
+
+        report_info = await self.connection.fetchrow(
+            """
+            SELECT 1
+            FROM reports
+            WHERE reported_user_id = $1 AND reporter_user_id = $2
+            """,
+            reported_user_id, reporter_user_id
+        )
+
+        if not report_info:
+            await self.connection.execute(
+                """
+                INSERT INTO reports (reported_user_id, reporter_user_id, reason) VALUES ($1, $2, $3)
+                """,
+                reported_user_id,
+                reporter_user_id,
+                reason)

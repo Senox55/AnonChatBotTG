@@ -21,10 +21,3 @@ async def process_reduce_reputation(callback: CallbackQuery, translator):
         reply_markup=None
     )
 
-
-@router.callback_query(F.data == 'complain')
-async def process_reduce_reputation(callback: CallbackQuery, translator):
-    await callback.message.edit_text(
-        translator.get('thanks_for_feedback'),
-        reply_markup=None
-    )

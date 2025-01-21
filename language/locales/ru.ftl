@@ -140,3 +140,5 @@ evaluate_interlocutor = Пожалуйста, оцените вашего соб
 
 thanks_for_feedback = Спасибо за отзыв.
 
+choose_report_reason = Выберите причину жалобы:
+
