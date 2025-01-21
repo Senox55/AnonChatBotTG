@@ -8,9 +8,7 @@ import logging
 
 from filters.db_state_filter import DBStateFilter
 from games.game_xo import GameBoard
-from states.game_xo import GameStates
 from filters.is_in_chat_filter import IsINChat
-from keyboards import *
 
 logging.basicConfig(level=logging.INFO)
 

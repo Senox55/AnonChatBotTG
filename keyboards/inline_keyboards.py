@@ -62,6 +62,12 @@ button_refuse_game_inline = InlineKeyboardButton(text='Отказаться', ca
 
 button_cancel_game_inline = InlineKeyboardButton(text='Отменить', callback_data="cancel_game")
 
+button_complain_inline = InlineKeyboardButton(text='Пожаловаться', callback_data="complain")
+
+button_reduce_reputation = InlineKeyboardButton(text='👎', callback_data="reduce_reputation")
+
+button_add_reputation = InlineKeyboardButton(text='👍', callback_data="add_reputation")
+
 keyboard_before_change_gender_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_set_male_inline, button_set_female_inline]])
 
@@ -82,3 +88,6 @@ keyboard_before_accept_game_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_accept_game_inline, button_refuse_game_inline]])
 
 keyboard_before_cancel_game_inline = InlineKeyboardMarkup(inline_keyboard=[[button_cancel_game_inline]])
+
+keyboard_evaluate_interlocutor = InlineKeyboardMarkup(
+    inline_keyboard=[[button_add_reputation, button_reduce_reputation], [button_complain_inline]])

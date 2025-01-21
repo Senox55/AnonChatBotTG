@@ -27,10 +27,23 @@ async def stop_dialog(message: Message, db, bot, translator):
             translator.get('stop_dialog'),
             reply_markup=keyboard_before_start_search,
         )
+
+        await bot.send_message(
+            message.chat.id,
+            translator.get('evaluate_interlocutor'),
+            reply_markup=keyboard_evaluate_interlocutor
+        )
+
         await bot.send_message(
             chat_info[1],
             translator.get('interlocutor_stop_dialog'),
             reply_markup=keyboard_before_start_search)
+
+        await bot.send_message(
+            chat_info[1],
+            translator.get('evaluate_interlocutor'),
+            reply_markup=keyboard_evaluate_interlocutor
+        )
     else:
         is_in_queue = await db.is_in_queue(message.chat.id)
         if is_in_queue:

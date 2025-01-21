@@ -20,13 +20,19 @@ async def process_next_command(message: Message, db, bot, translator):
         await db.delete_chat(chat_info[0])
         await bot.send_message(
             message.chat.id,
-            translator.get('stop_dialog'),
-            reply_markup=keyboard_before_start_search,
+            translator.get('evaluate_interlocutor'),
+            reply_markup=keyboard_evaluate_interlocutor
         )
         await bot.send_message(
             chat_info[1],
             translator.get('interlocutor_stop_dialog'),
             reply_markup=keyboard_before_start_search
+        )
+
+        await bot.send_message(
+            chat_info[1],
+            translator.get('evaluate_interlocutor'),
+            reply_markup=keyboard_evaluate_interlocutor
         )
 
     is_in_queue = await db.is_in_queue(message.chat.id)
@@ -37,18 +43,8 @@ async def process_next_command(message: Message, db, bot, translator):
     if not is_in_queue:
         if not chat_info:
             if not await db.create_chat(message.chat.id, chat_two):
+                pass
 
-                await db.add_queue(message.chat.id)
-                if preferred_gender == 'm':
-                    search_message = translator.get('start_search_male')
-                elif preferred_gender == 'f':
-                    search_message = translator.get('start_search_female')
-                else:
-                    search_message = translator.get('start_search')
-                await message.answer(
-                    search_message,
-                    reply_markup=keyboard_after_start_research
-                )
             else:
                 mess = translator.get('found_interlocutor')
                 await bot.send_message(

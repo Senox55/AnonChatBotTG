@@ -26,6 +26,7 @@ class VipCheckMiddleware(BaseMiddleware):
             if end_date and end_date < datetime.now():
                 # Если срок действия истёк, деактивируем статус
                 await db.deactivate_vip_status(user_id)
+                await db.set_preferred_gender(user_id, None)
                 await event.answer(translator.get('deactivate_vip'),
                                    reply_markup=keyboard_before_start_search)
 
