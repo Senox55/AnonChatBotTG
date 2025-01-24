@@ -4,13 +4,22 @@ from aiogram.filters import Command
 
 from config_data.config import load_config
 from config_data.user_config import AGE, SEX
+from database.database import Database
 from keyboards import *
+from language.translator import Translator
 
 router = Router()
 config = load_config('.env')
 
 
-async def show_profile(message: Message, db, translator):
+async def show_profile(message: Message, db: Database, translator: Translator):
+    """
+    Функция для отображения профиля пользователя
+    :param message:
+    :param db:
+    :param translator:
+    :return:
+    """
     user_id = message.chat.id
     user_info = await db.get_user_info(user_id)
 
@@ -42,10 +51,10 @@ async def show_profile(message: Message, db, translator):
 
 
 @router.message(Command(commands=['profile']))
-async def process_show_profile_command(message: Message, db, translator):
+async def process_show_profile_command(message: Message, db: Database, translator: Translator):
     await show_profile(message, db, translator)
 
 
 @router.message(F.text == '👤 Профиль')
-async def process_show_profile_button(message: Message, db, translator):
+async def process_show_profile_button(message: Message, db: Database, translator: Translator):
     await show_profile(message, db, translator)

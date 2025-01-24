@@ -4,13 +4,17 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 class GameBoard:
     def __init__(self, size):
-        self.size = size
-        self.board = ["⬜"] * self.size ** 2
-        self.current_player = "❌"
-        self.win_length = 4 if self.size == 5 else 3
-        self.winner = None
+        self.size = size # Размер поля
+        self.board = ["⬜"] * self.size ** 2 # Игровое поле
+        self.current_player = "❌" # Текущий игрок
+        self.win_length = 4 if self.size == 5 else 3 # Кол-во символов, идущих подряд для победы
+        self.winner = None # Победитель
 
     def get_board_markup(self) -> InlineKeyboardMarkup:
+        """
+        Функция для отрисовки игрового поля
+        :return:
+        """
         builder = InlineKeyboardBuilder()
         for i in range(self.size ** 2):
             if self.board[i] == "⬜":
@@ -21,18 +25,27 @@ class GameBoard:
         return builder.as_markup()
 
     def get_board_text(self):
+        """
+        Функция для получения поля в текстовом виде
+        :return:
+        """
         board_text = ""
         for i in range(0, self.size ** 2, self.size):
             row = []
             for cell in self.board[i:i + self.size]:
                 if cell == ' ':
-                    row.append('⬜')  # Заменяем пробел квадрат
+                    row.append('⬜')  # Заменяем пробел квадратом
                 else:
                     row.append(cell)
             board_text += " ".join(row) + "\n"
         return board_text.strip()
 
     def make_move(self, position: int) -> bool:
+        """
+        Функция для имитации хода игрока
+        :param position:
+        :return:
+        """
         if self.board[position] == "⬜":
             self.board[position] = self.current_player
             self.check_winner(position)
@@ -42,9 +55,18 @@ class GameBoard:
         return False
 
     def switch_player(self):
+        """
+        Функция для смены хода
+        :return:
+        """
         self.current_player = "⭕" if self.current_player == "❌" else "❌"
 
-    def check_winner(self, last_move):
+    def check_winner(self, last_move: int):
+        """
+        Функция для проверки победителя
+        :param last_move:
+        :return:
+        """
         row = last_move // self.size  # Номер строки
         col = last_move % self.size  # Номер столбца
         player = self.board[last_move]  # Символ игрока, сделавшего ход
@@ -63,7 +85,7 @@ class GameBoard:
         if "⬜" not in self.board:
             self.winner = "Draw"
 
-    def check_direction(self, row, col, d_row, d_col, player):
+    def check_direction(self, row: int, col: int, d_row: int, d_col: int, player: str):
         """Проверяет линию от точки в двух направлениях."""
         count = 1  # Количество подряд стоящих символов игрока
 
@@ -76,7 +98,7 @@ class GameBoard:
         # Если количество подряд символов >= win_length, игрок победил
         return count >= self.win_length
 
-    def count_in_direction(self, row, col, d_row, d_col, player):
+    def count_in_direction(self, row: int, col: int, d_row: int, d_col: int, player: str):
         """Считает количество подряд символов игрока в одном направлении."""
         count = 0
         for _ in range(self.win_length - 1):  # Проверяем максимум win_length - 1 клеток
@@ -93,6 +115,10 @@ class GameBoard:
         return count
 
     def reset(self):
+        """
+        Функция для перезапуска игры
+        :return:
+        """
         self.board = ["⬜"] * self.size ** 2
         self.current_player = "❌"
         self.winner = None

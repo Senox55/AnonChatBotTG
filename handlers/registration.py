@@ -3,6 +3,8 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+from database.database import Database
+from language.translator import Translator
 from states.registration import RegistrationFSM
 from keyboards import *
 
@@ -10,7 +12,15 @@ router = Router()
 
 
 @router.message(F.text.in_(['Я Парень 🙋‍♂️', 'Я Девушка 🙋‍♀️']), StateFilter(RegistrationFSM.fill_gender))
-async def set_gender(message: Message, db, translator, state: FSMContext):
+async def set_gender(message: Message, db: Database, translator: Translator, state: FSMContext):
+    """
+    Функция для установки гендера через reply клавиатуру
+    :param message:
+    :param db:
+    :param translator:
+    :param state:
+    :return:
+    """
     if not await db.get_user_info(message.chat.id):
         if message.text == 'Я Парень 🙋‍♂️':
             gender = 'm'
@@ -33,7 +43,15 @@ async def set_gender(message: Message, db, translator, state: FSMContext):
 @router.message(
     F.text.in_(['📍 До 17', '📍 18-21', '📍 22-25', '📍 26-35', '📍 36-45', '📍 46+']),
     StateFilter(RegistrationFSM.fill_age))
-async def set_age(message: Message, db, translator, state: FSMContext):
+async def set_age(message: Message, db: Database, translator: Translator, state: FSMContext):
+    """
+    Функция для установки пола через reply клавиатуру
+    :param message:
+    :param db:
+    :param translator:
+    :param state:
+    :return:
+    """
     if message.text == '📍 До 17':
         age = 17
     elif message.text == '📍 18-21':

@@ -9,7 +9,6 @@ from middlewares.database import DataBaseMiddleware
 from middlewares.registration import RegistrationCheckMiddleware
 from middlewares.translator import TranslatorMiddleware
 from middlewares.vip_checker import VipCheckMiddleware
-from middlewares.is_alive import IsAliveCheckMiddleware
 from handlers import (start_search, stop_search, search_next, stop_dialog, profile, process_chating, registration,
                       edit_profile, buy_vip, block_bot, choose_games, game_xo, invite_games, reputation_system,
                       report_system, vip_command)
@@ -31,14 +30,8 @@ async def main():
         password=config.db.db_password
     )
 
-    # Иницализация middlewares
-    dp.update.middleware(DataBaseMiddleware())
-    dp.update.middleware(TranslatorMiddleware())
-    dp.message.middleware(RegistrationCheckMiddleware())
-    dp.message.middleware(IsAliveCheckMiddleware())
-    dp.message.middleware(VipCheckMiddleware())
 
-    # Иницализация routers
+    # Регистрация routers
     dp.include_router(block_bot.router)
     dp.include_router(registration.router)
     dp.include_router(buy_vip.router)
@@ -55,6 +48,13 @@ async def main():
     dp.include_router(invite_games.router)
     dp.include_router(game_xo.router)
     dp.include_router(process_chating.router)
+
+    # Регистрация middlewares
+    dp.update.middleware(DataBaseMiddleware())
+    dp.update.middleware(TranslatorMiddleware())
+    dp.message.middleware(RegistrationCheckMiddleware())
+    dp.message.middleware(VipCheckMiddleware())
+
 
     await bot.delete_webhook(drop_pending_updates=True)
     try:

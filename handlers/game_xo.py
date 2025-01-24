@@ -1,21 +1,20 @@
 from aiogram import F, Router
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.storage.base import StorageKey
 from aiogram.types import Message, CallbackQuery
-from aiogram.filters import StateFilter
 import json
 import logging
 
+from database.database import Database
 from filters.db_state_filter import DBStateFilter
 from games.game_xo import GameBoard
 from filters.is_in_chat_filter import IsINChat
+from language.translator import Translator
 
 logging.basicConfig(level=logging.INFO)
 
 router = Router()
 
 
-async def process_move(callback: CallbackQuery, db, translator, current_player):
+async def process_move(callback: CallbackQuery, db: Database, translator: Translator, current_player: str):
     user_id_one = callback.from_user.id
     user_state_one = await db.get_user_state(user_id_one)
     user_data_one = json.loads(user_state_one['data'])

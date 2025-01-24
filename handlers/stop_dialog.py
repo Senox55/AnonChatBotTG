@@ -1,25 +1,23 @@
-from aiogram import F, Router
+from aiogram import F, Router, Bot
 from aiogram.types import Message
 from aiogram.filters import Command
 import json
 
+from database.database import Database
 from keyboards import *
+from language.translator import Translator
 
 router = Router()
 
 
-async def increment_chat_count(user_id: int, db):
-    await db.increment_chat_count(user_id)
-
-
-async def stop_dialog(message: Message, db, bot, translator, from_search_next=False):
+async def stop_dialog(message: Message, db: Database, bot: Bot, translator: Translator, from_search_next=False):
     user_id_one = message.from_user.id
 
     chat_info = await db.get_active_chat(user_id_one)
 
     if chat_info:
-        await increment_chat_count(message.chat.id, db)
-        await increment_chat_count(chat_info[1], db)
+        await db.increment_chat_count(message.chat.id)
+        await db.increment_chat_count(chat_info[1])
 
         user_state_one = await db.get_user_state(user_id_one)
 
@@ -33,7 +31,7 @@ async def stop_dialog(message: Message, db, bot, translator, from_search_next=Fa
             await bot.edit_message_text(
                 chat_id=user_id_one,
                 message_id=user_one_message_id,
-                text="Игра завершена. Вы покинули чат."
+                text=translator.get('game_close_player')
             )
 
         if user_state_two:
@@ -44,7 +42,7 @@ async def stop_dialog(message: Message, db, bot, translator, from_search_next=Fa
             await bot.edit_message_text(
                 chat_id=user_id_two,
                 message_id=user_two_message_id,
-                text="Игра завершена. Собеседник покинул чат."
+                text=translator.get('game_close_interlocutor')
             )
 
         await db.clear_user_state(message.chat.id)
@@ -91,10 +89,10 @@ async def stop_dialog(message: Message, db, bot, translator, from_search_next=Fa
 
 
 @router.message(Command(commands=['stop']))
-async def process_stop_command(message: Message, db, bot, translator):
+async def process_stop_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await stop_dialog(message, db, bot, translator)
 
 
 @router.message(F.text == '👋 Завершить чат')
-async def process_stop_button(message: Message, db, bot, translator):
+async def process_stop_button(message: Message, db: Database, bot: Bot, translator: Translator):
     await stop_dialog(message, db, bot, translator)

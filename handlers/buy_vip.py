@@ -1,4 +1,4 @@
-from aiogram import F, Router
+from aiogram import F, Router, Bot
 from aiogram.types import CallbackQuery, LabeledPrice, Message, PreCheckoutQuery
 
 from config_data.config import load_config
@@ -9,7 +9,13 @@ config = load_config('.env')
 
 
 @router.callback_query(F.data.startswith("buy_vip_stars_for_"))
-async def process_buy_vip(callback: CallbackQuery, bot):
+async def process_buy_vip(callback: CallbackQuery, bot: Bot):
+    """
+    Функция для отправки инвойса покупки вип
+    :param callback:
+    :param bot:
+    :return:
+    """
     # Получаем параметры для выбранного типа доступа
     data = callback.data.replace("buy_vip_stars_for_", "")
     vip_data = VIP_CONFIG[data]
@@ -41,7 +47,7 @@ async def process_successful_payment(message: Message, db, translator):
     """
     Обрабатываем успешный платеж.
     """
-    # Получаем полезную нагрузку (payload) из успешного платежа
+    # Получаем payload из успешного платежа
     payload = message.successful_payment.invoice_payload
 
     if "vip_access" in payload:

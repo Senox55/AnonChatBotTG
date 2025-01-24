@@ -1,14 +1,16 @@
-from aiogram import F, Router
+from aiogram import F, Router, Bot
 from aiogram.types import Message, FSInputFile
 from aiogram.filters import CommandStart, Command
 
+from database.database import Database
 from filters.is_vip_filter import IsVIP
 from keyboards import *
+from language.translator import Translator
 
 router = Router()
 
 
-async def start_search(message: Message, db, bot, translator, preferred_gender: str = None):
+async def start_search(message: Message, db: Database, bot: Bot, translator: Translator, preferred_gender: str = None):
     user_id = message.chat.id
 
     await db.set_preferred_gender(user_id, preferred_gender)
@@ -58,49 +60,49 @@ async def start_search(message: Message, db, bot, translator, preferred_gender: 
         )
 
 
-@router.message(F.text == '👫Поиск по полу')
-async def process_choose_gender_search(message: Message, db, translator):
-    is_vip = await IsVIP()(message, db)
+@router.message(F.text == '👫Поиск по полу', IsVIP())
+async def process_choose_gender_search(message: Message, translator: Translator, ):
+    """
+    Функция для выбора пола собеседника
+    :param message:
+    :param db:
+    :param translator:
+    :return:
+    """
 
-    if is_vip:
-        # Если есть VIP, показываем основной функционал
-        await message.answer(
-            translator.get('choose_search_gender'),
-            reply_markup=keyboard_choose_gender_search
-        )
-    else:
-        await message.answer(
-            text=translator.get('vip_description'),
-            reply_markup=buy_vip_keyboard_inline)
+    await message.answer(
+        translator.get('choose_search_gender'),
+        reply_markup=keyboard_choose_gender_search
+    )
 
 
 @router.message(CommandStart())
-async def process_start_command(message: Message, db, bot, translator):
+async def process_start_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await start_search(message, db, bot, translator)
 
 
 @router.message(Command(commands=['search']))
-async def process_search_command(message: Message, db, bot, translator):
+async def process_search_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await start_search(message, db, bot, translator)
 
 
 @router.message(F.text == '🔍Начать общение')
-async def process_start_search_random_command(message: Message, db, bot, translator):
+async def process_start_search_random_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await start_search(message, db, bot, translator)
 
 
 @router.message(F.text == 'Найти Парня 🙋‍♂️', IsVIP())
-async def process_start_search_male_command(message: Message, db, bot, translator):
+async def process_start_search_male_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await start_search(message, db, bot, translator, preferred_gender='m')
 
 
 @router.message(F.text == 'Найти Девушку 🙋‍♀️', IsVIP())
-async def process_start_search_female_command(message: Message, db, bot, translator):
+async def process_start_search_female_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await start_search(message, db, bot, translator, preferred_gender='f')
 
 
 @router.message(F.text == '↩️ Назад')
-async def process_cancel_choose_gender_for_search(message: Message, translator):
+async def process_cancel_choose_gender_for_search(message: Message, db: Database, bot: Bot, translator: Translator):
     await message.answer(
         translator.get('cancel_choose_search_gender'),
         reply_markup=keyboard_before_start_search

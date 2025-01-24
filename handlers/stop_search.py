@@ -1,13 +1,15 @@
 from aiogram import F, Router
 from aiogram.types import Message
 
+from database.database import Database
 from keyboards import *
+from language.translator import Translator
 
 router = Router()
 
 
 @router.message(F.text == '✋ Отменить поиск')
-async def process_finish_search_command(message: Message, db, translator):
+async def process_finish_search_command(message: Message, db: Database, translator: Translator):
     # Проверяем, находится ли пользователь в очереди
     is_in_queue = await db.is_in_queue(message.chat.id)
 

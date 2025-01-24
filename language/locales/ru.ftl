@@ -138,4 +138,8 @@ safe_mode_disabled = ❌ Безопасный режим выключен
 
 choose_chat_mode = Выберите режим безопасности:
 
+game_close_player = Игра завершена. Вы покинули чат.
+
+game_close_interlocutor = Игра завершена. Собеседник покинул чат.
+
 

@@ -5,16 +5,24 @@ import logging
 import json
 
 from keyboards import *
+from database.database import Database
 from filters.is_in_chat_filter import IsINChat
+from language.translator import Translator
 
 logging.basicConfig(level=logging.INFO)
 
 router = Router()
 
 
-async def process_choose_game(message: Message, db, translator):
+async def process_choose_game(message: Message, db: Database, translator: Translator):
+    """
+    Функция для выбора игры
+    :param message:
+    :param db:
+    :param translator:
+    :return:
+    """
     user_id = message.chat.id
-    chat_info = await db.get_active_chat(user_id)
 
     user_state_info = await db.get_user_state(user_id)
     if user_state_info:
