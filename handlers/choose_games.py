@@ -22,21 +22,17 @@ async def process_choose_game(message: Message, db, translator):
 
         if user_state in ["waiting_for_opponent", "waiting_for_start", "playing", "player1_turn", "player2_turn"]:
             await message.answer(
-                translator.get('start_play_when_in_game'))
+                translator.get('start_play_when_in_game'),
+                reply_markup=keyboard_after_find_dialog)
             return
     else:
-        await db.set_user_state(user_id, "waiting_for_opponent")
-
-    if chat_info:
         logging.info(f"user {user_id} choose game")
-        await message.answer(
+        user_one_message = await message.answer(
             text=translator.get('choose_game'),
             reply_markup=keyboard_before_choose_game_inline
         )
-    else:
-        await message.answer(
-            translator.get('when_not_in_dialog'),
-            reply_markup=keyboard_before_start_search)
+
+        await db.set_user_state(user_id, "waiting_for_opponent", json.dumps({"message_id": user_one_message.message_id}))
 
 
 @router.message(Command(commands=['play']), IsINChat())

@@ -3,62 +3,98 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 class GameBoard:
-    def __init__(self):
-        self.board = [" "] * 9
-        self.current_player = "X"
+    def __init__(self, size):
+        self.size = size
+        self.board = ["⬜"] * self.size ** 2
+        self.current_player = "❌"
+        self.win_length = 3
         self.winner = None
 
     def get_board_markup(self) -> InlineKeyboardMarkup:
         builder = InlineKeyboardBuilder()
-        for i in range(9):
-            if self.board[i] == " ":
-                builder.add(InlineKeyboardButton(text=" ", callback_data=f"move_{i}"))
+        for i in range(self.size ** 2):
+            if self.board[i] == "⬜":
+                builder.add(InlineKeyboardButton(text=" ⬜ ", callback_data=f"move_{i}", row_width=3))
             else:
-                builder.add(InlineKeyboardButton(text=self.board[i], callback_data="ignore"))
-        builder.adjust(3)
+                builder.add(InlineKeyboardButton(text=self.board[i], callback_data="ignore", row_width=3))
+        builder.adjust(self.size)
         return builder.as_markup()
 
     def get_board_text(self):
         board_text = ""
-        for i in range(0, 9, 3):
+        for i in range(0, self.size ** 2, self.size):
             row = []
-            for cell in self.board[i:i + 3]:
+            for cell in self.board[i:i + self.size]:
                 if cell == ' ':
-                    row.append('·')  # Заменяем пробел на точку
+                    row.append('⬜')  # Заменяем пробел квадрат
                 else:
                     row.append(cell)
             board_text += " ".join(row) + "\n"
         return board_text.strip()
 
     def make_move(self, position: int) -> bool:
-        if self.board[position] == " ":
+        if self.board[position] == "⬜":
             self.board[position] = self.current_player
-            self.check_winner()
+            self.check_winner(position)
             if not self.winner:
                 self.switch_player()
             return True
         return False
 
     def switch_player(self):
-        self.current_player = "O" if self.current_player == "X" else "X"
+        self.current_player = "⭕" if self.current_player == "❌" else "❌"
 
-    def check_winner(self):
-        win_combinations = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Горизонтальные
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Вертикальные
-            [0, 4, 8], [2, 4, 6]  # Диагональные
-        ]
-        for combination in win_combinations:
-            if self.board[combination[0]] == self.board[combination[1]] == self.board[combination[2]] != " ":
-                self.winner = self.board[combination[0]]
-                return
+    def check_winner(self, last_move):
+        row = last_move // self.size  # Номер строки
+        col = last_move % self.size  # Номер столбца
+        player = self.board[last_move]  # Символ игрока, сделавшего ход
 
-        if " " not in self.board:
+        # Проверяем горизонтальную, вертикальную и диагональные линии
+        if (
+            self.check_direction(row, col, 0, 1, player)  # Горизонтальная
+            or self.check_direction(row, col, 1, 0, player)  # Вертикальная
+            or self.check_direction(row, col, 1, 1, player)  # Главная диагональ
+            or self.check_direction(row, col, 1, -1, player)  # Побочная диагональ
+        ):
+            self.winner = player
+            return
+
+        # Проверяем ничью
+        if "⬜" not in self.board:
             self.winner = "Draw"
 
+    def check_direction(self, row, col, d_row, d_col, player):
+        """Проверяет линию от точки в двух направлениях."""
+        count = 1  # Количество подряд стоящих символов игрока
+
+        # Проверяем в одном направлении (d_row, d_col)
+        count += self.count_in_direction(row, col, d_row, d_col, player)
+
+        # Проверяем в противоположном направлении (-d_row, -d_col)
+        count += self.count_in_direction(row, col, -d_row, -d_col, player)
+
+        # Если количество подряд символов >= win_length, игрок победил
+        return count >= self.win_length
+
+    def count_in_direction(self, row, col, d_row, d_col, player):
+        """Считает количество подряд символов игрока в одном направлении."""
+        count = 0
+        for _ in range(self.win_length - 1):  # Проверяем максимум win_length - 1 клеток
+            row += d_row
+            col += d_col
+            if 0 <= row < self.size and 0 <= col < self.size:  # Проверяем, что не вышли за границы
+                index = row * self.size + col
+                if self.board[index] == player:
+                    count += 1
+                else:
+                    break
+            else:
+                break
+        return count
+
     def reset(self):
-        self.board = [" "] * 9
-        self.current_player = "X"
+        self.board = ["⬜"] * self.size ** 2
+        self.current_player = "❌"
         self.winner = None
 
     def to_dict(self) -> dict:
@@ -66,14 +102,16 @@ class GameBoard:
         return {
             'board': self.board,
             'current_player': self.current_player,
-            'winner': self.winner
+            'winner': self.winner,
+            'size': self.size
         }
 
     @classmethod
     def from_dict(cls, data: dict):
         """Десериализует словарь в объект GameBoard."""
-        instance = cls()
-        instance.board = data.get('board', [" "] * 9)
+        size = data.get("size")
+        instance = cls(size)
+        instance.board = data.get('board', ["⬜"] * size ** 2)
         instance.current_player = data.get('current_player', "X")
         instance.winner = data.get('winner', None)
         return instance

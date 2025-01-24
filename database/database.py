@@ -148,8 +148,8 @@ class Database():
     async def get_vip_status(self, user_id):
         info = await self.connection.fetchrow(
             """SELECT *
-            FROM vip_statuses as u
-            WHERE u.user_id = $1""",
+            FROM vip_statuses
+            WHERE user_id = $1""",
             user_id
         )
         if info:

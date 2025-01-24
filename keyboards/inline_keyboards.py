@@ -56,6 +56,12 @@ button_buy_vip_for_1_year_inline = InlineKeyboardButton(
 
 button_play_XO_inline = InlineKeyboardButton(text='X-O', callback_data="invite_play_xo")
 
+button_XO_mode_3_inline = InlineKeyboardButton(text='3 X 3', callback_data="XO_mode_3")
+
+button_XO_mode_4_inline = InlineKeyboardButton(text='4 X 4', callback_data="XO_mode_4")
+
+button_XO_mode_5_inline = InlineKeyboardButton(text='5 X 5', callback_data="XO_mode_5")
+
 button_accept_game_inline = InlineKeyboardButton(text='Принять', callback_data="accept_game")
 
 button_refuse_game_inline = InlineKeyboardButton(text='Отказаться', callback_data="refuse_game")
@@ -104,3 +110,6 @@ keyboard_reports_inline = InlineKeyboardMarkup(inline_keyboard=[[button_report_s
                                                                 [button_report_abuse],
                                                                 [button_report_content],
                                                                 [button_cancel_report_inline]])
+
+keyboard_choose_game_mode_xo = InlineKeyboardMarkup(
+    inline_keyboard=[[button_XO_mode_3_inline, button_XO_mode_4_inline, button_XO_mode_5_inline], ])

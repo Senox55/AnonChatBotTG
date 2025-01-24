@@ -58,7 +58,7 @@ async def process_move(callback: CallbackQuery, db, translator, current_player):
                 next_player = "O" if current_player == "X" else "X"
                 # Обновляем сообщение у текущего игрока
                 await callback.message.edit_text(
-                    text=translator.get('move_player', next_player=next_player),
+                    text=translator.get('interlocutor_move', next_player=next_player),
                     reply_markup=game.get_board_markup()
                 )
 
@@ -67,7 +67,7 @@ async def process_move(callback: CallbackQuery, db, translator, current_player):
                     await callback.bot.edit_message_text(
                         chat_id=user_id_two,
                         message_id=user_two_message_id,
-                        text=translator.get('move_player', next_player=next_player),
+                        text=translator.get('player_move', next_player=next_player),
                         reply_markup=game.get_board_markup()
                     )
                     player_turn = "player2_turn" if next_player == 'O' else "player1_turn"
