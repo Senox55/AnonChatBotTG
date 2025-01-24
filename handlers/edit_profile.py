@@ -52,3 +52,31 @@ async def process_set_male_gender(callback: CallbackQuery, db, translator):
         text=translator.get('registered'),
         reply_markup=None
     )
+
+@router.callback_query(F.data == 'change_chat_mode')
+async def process_change_chat_mode(callback, db, translator):
+    await callback.message.edit_text(
+        text=translator.get("choose_chat_mode"),
+        reply_markup=keyboard_edit_chat_mode_inline
+    )
+
+
+@router.callback_query(F.data == 'safe_mode')
+async def process_set_safe_chat_mode(callback, db, translator):
+    user_id = callback.from_user.id
+    is_save = True
+    await db.change_user_chat_mode(user_id, is_save)
+    await callback.message.edit_text(
+        text=translator.get("safe_mode_enabled"),
+        reply_markup=None
+    )
+
+@router.callback_query(F.data == 'unsafe_mode')
+async def process_set_safe_chat_mode(callback, db, translator):
+    user_id = callback.from_user.id
+    is_save = False
+    await db.change_user_chat_mode(user_id, is_save)
+    await callback.message.edit_text(
+        text=translator.get("safe_mode_disabled"),
+        reply_markup=None
+    )

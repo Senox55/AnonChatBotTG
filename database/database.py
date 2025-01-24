@@ -292,3 +292,24 @@ class Database():
                 reported_user_id,
                 reporter_user_id,
                 reason)
+
+    async def change_user_chat_mode(self, user_id: int, safe_mode: bool):
+        await self.connection.execute(
+            """
+            UPDATE users
+            SET safe_mode = $1
+            WHERE id = $2
+            """,
+            safe_mode, user_id
+        )
+
+    async def get_user_chat_mode(self, user_id: int):
+        is_save = await self.connection.fetchrow(
+            """
+            SELECT safe_mode
+            FROM users
+            WHERE id = $1
+            """,
+            user_id
+        )
+        return is_save['safe_mode']

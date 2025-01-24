@@ -82,10 +82,19 @@ button_report_content = InlineKeyboardButton(text='🔞Неприемлемый 
 
 button_cancel_report_inline = InlineKeyboardButton(text='◀️Назад', callback_data="cancel_report")
 
+edit_chat_mode = InlineKeyboardButton(text='Режим безопасности', callback_data="change_chat_mode")
+
+safe_mode = InlineKeyboardButton(text='Безопасный', callback_data="safe_mode")
+
+unsafe_mode = InlineKeyboardButton(text='Без ограничений', callback_data="unsafe_mode")
+
 keyboard_before_change_gender_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_set_male_inline, button_set_female_inline]])
 
-keyboard_edit_profile_inline = InlineKeyboardMarkup(inline_keyboard=[[button_edit_profile_inline]])
+keyboard_edit_profile_inline = InlineKeyboardMarkup(inline_keyboard=[[button_edit_profile_inline],
+                                                                     [edit_chat_mode]])
+
+keyboard_edit_chat_mode_inline = InlineKeyboardMarkup(inline_keyboard=[[safe_mode, unsafe_mode]])
 
 keyboard_before_change_age_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_set_17_inline, button_set_21_inline, button_set_25_inline],
