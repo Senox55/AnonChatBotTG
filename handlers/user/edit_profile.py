@@ -95,9 +95,9 @@ async def process_change_chat_mode(callback: CallbackQuery, translator: Translat
 
 @router.callback_query(F.data == 'safe_mode')
 async def process_set_safe_chat_mode(callback: CallbackQuery, db: Database, translator: Translator):
-    await set_chat_mode(callback, db, translator, 'True')
+    await set_chat_mode(callback, db, translator, True)
 
 
 @router.callback_query(F.data == 'unsafe_mode')
 async def process_set_safe_chat_mode(callback, db, translator):
-    await set_chat_mode(callback, db, translator, 'False')
+    await set_chat_mode(callback, db, translator, False)

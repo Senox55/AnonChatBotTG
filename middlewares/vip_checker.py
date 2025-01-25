@@ -4,10 +4,30 @@ from aiogram.types import Message
 from datetime import datetime
 import logging
 
-from keyboards import keyboard_before_start_search
+from keyboards import *
+
 
 
 class VipCheckMiddleware(BaseMiddleware):
+    async def __call__(
+            self,
+            handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],
+            event: Message,
+            data: Dict[str, Any]
+    ) -> Any:
+        db = data["db"]
+        translator = data['translator']
+
+        user_id = event.chat.id
+
+        vip_status = await db.get_vip_status(user_id)
+        if vip_status:
+            return await handler(event, data)
+
+        await event.answer(
+            translator.get('vip_description'))
+
+class CheckValidityVipMiddleware(BaseMiddleware):
     async def __call__(
             self,
             handler: Callable[[Message, Dict[str, Any]], Awaitable[Any]],

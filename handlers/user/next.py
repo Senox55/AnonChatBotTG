@@ -4,8 +4,8 @@ from aiogram.filters import Command
 import logging
 
 from database.database import Database
-from handlers.stop_dialog import stop_dialog
-from handlers.start_search import start_search
+from handlers.user.stop_dialog import stop_dialog
+from handlers.user.search import start_search
 from language.translator import Translator
 
 router = Router()

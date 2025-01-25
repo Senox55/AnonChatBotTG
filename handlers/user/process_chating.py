@@ -5,7 +5,7 @@ import logging
 
 from database.database import Database
 from language.translator import Translator
-from handlers.chat_utils import close_game_after_stop_dialog
+from handlers.user.chat_utils import close_game_after_stop_dialog
 from keyboards import *
 
 
