@@ -1,7 +1,8 @@
 from aiogram import Router
-from handlers.vip import vip_command, search_gender
+from handlers.vip import vip_command, search_gender, vip_invite_game
 from handlers.user import (stop_search, stop_dialog, buy_vip, reputation_system, report_system, registration,
-    process_chating, profile, edit_profile, choose_games, game_xo, invite_games, next, block_unblock, search)
+                           process_chating, profile, edit_profile, choose_games, game_xo, invite_games, next,
+                           block_unblock, search)
 
 user_router = Router()
 vip_router = Router()
@@ -24,3 +25,4 @@ user_router.include_router(process_chating.router)
 
 vip_router.include_router(vip_command.router)
 vip_router.include_router(search_gender.router)
+vip_router.include_router(vip_invite_game.router)

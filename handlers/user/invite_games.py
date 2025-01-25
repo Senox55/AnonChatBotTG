@@ -13,17 +13,6 @@ from language.translator import Translator
 router = Router()
 
 
-@router.callback_query(F.data == "invite_play_xo", IsINChat())
-async def process_choose_xo_game_mode(callback: CallbackQuery):
-    """
-    Функция для выбора мода игры XO
-    :param callback:
-    :return:
-    """
-    await callback.message.edit_text("Выберите режим игры:",
-                                     reply_markup=keyboard_choose_game_mode_xo)
-
-
 async def process_invite_xo_game(callback: CallbackQuery, db: Database, translator: Translator, size: int):
     """
     Функция для приглашения собеседника в игру
@@ -57,6 +46,51 @@ async def process_invite_xo_game(callback: CallbackQuery, db: Database, translat
     logging.info(f"Приглашение на игру отправлено от {user_id_one} к {user_id_two}")
 
 
+async def process_game_action(callback: CallbackQuery, db: Database, translator: Translator, action: str):
+    """
+    Обрабатывает действия, связанные с отменой или отказом от игры.
+
+    Args:
+        callback:
+        db: Объект для работы с базой данных.
+        translator:
+        action: Тип действия ("cancel или "refuse").
+    """
+    user_id_one = callback.from_user.id
+    chat_info = await db.get_active_chat(user_id_one)
+    user_id_two = chat_info[1]
+
+    user_two_message_info = await db.get_user_state(user_id_two)
+    user_two_message_id = json.loads(user_two_message_info['data']).get('message_id')
+
+    # Определяем сообщения для первого и второго пользователя в зависимости от действия
+    message_one_key = f'{action}_game'
+    message_two_key = f'{action}_game_interlocutor'
+
+    await callback.message.edit_text(translator.get(message_one_key), reply_markup=None)
+
+    await callback.bot.edit_message_text(
+        chat_id=user_id_two,
+        message_id=user_two_message_id,
+        text=translator.get(message_two_key),
+        reply_markup=None
+    )
+
+    await db.clear_user_state(user_id_one)
+    await db.clear_user_state(user_id_two)
+
+
+@router.callback_query(F.data == "invite_play_xo", IsINChat())
+async def process_choose_xo_game_mode(callback: CallbackQuery):
+    """
+    Функция для выбора мода игры XO
+    :param callback:
+    :return:
+    """
+    await callback.message.edit_text("Выберите режим игры:",
+                                     reply_markup=keyboard_choose_game_mode_xo)
+
+
 @router.callback_query(F.data == "XO_mode_3", IsINChat())
 async def process_invite_xo_game_3(callback: CallbackQuery, db: Database, translator: Translator):
     await process_invite_xo_game(callback, db, translator, 3)
@@ -65,11 +99,6 @@ async def process_invite_xo_game_3(callback: CallbackQuery, db: Database, transl
 @router.callback_query(F.data == "XO_mode_4", IsINChat())
 async def process_invite_xo_game_4(callback: CallbackQuery, db: Database, translator: Translator):
     await process_invite_xo_game(callback, db, translator, 4)
-
-
-@router.callback_query(F.data == "XO_mode_5", IsINChat())
-async def process_invite_xo_game_5(callback: CallbackQuery, db: Database, translator: Translator):
-    await process_invite_xo_game(callback, db, translator, 5)
 
 
 @router.callback_query(F.data == "accept_game", IsINChat(), DBStateFilter("waiting_for_start"))
@@ -105,46 +134,11 @@ async def process_accept_xo_game(callback: CallbackQuery, db: Database, translat
     )
 
 
-@router.callback_query(IsINChat(), DBStateFilter("waiting_for_start"))
-async def process_game_action(callback: CallbackQuery, db: Database, translator: Translator, action: str):
-    """
-    Обрабатывает действия, связанные с отменой или отказом от игры.
-
-    Args:
-        callback:
-        db: Объект для работы с базой данных.
-        translator:
-        action: Тип действия ("cancel или "refuse").
-    """
-    user_id_one = callback.from_user.id
-    chat_info = await db.get_active_chat(user_id_one)
-    user_id_two = chat_info[1]
-
-    user_two_message_info = await db.get_user_state(user_id_two)
-    user_two_message_id = json.loads(user_two_message_info['data']).get('message_id')
-
-    # Определяем сообщения для первого и второго пользователя в зависимости от действия
-    message_one_key = f'{action}_game'
-    message_two_key = f'{action}_game_interlocutor'
-
-    await callback.message.edit_text(translator.get(message_one_key), reply_markup=None)
-
-    await callback.bot.edit_message_text(
-        chat_id=user_id_two,
-        message_id=user_two_message_id,
-        text=translator.get(message_two_key),
-        reply_markup=None
-    )
-
-    await db.clear_user_state(user_id_one)
-    await db.clear_user_state(user_id_two)
-
-
-@router.callback_query(F.data == "cancel_game")
+@router.callback_query(IsINChat(), DBStateFilter("waiting_for_start"), F.data == "cancel_game")
 async def process_cancel_xo_game(callback: CallbackQuery, db: Database, translator: Translator):
     await process_game_action(callback, db, translator, "cancel")
 
 
-@router.callback_query(F.data == "refuse_game")
+@router.callback_query(IsINChat(), DBStateFilter("waiting_for_start"), F.data == "refuse_game")
 async def process_refuse_xo_game(callback: CallbackQuery, db: Database, translator: Translator):
     await process_game_action(callback, db, translator, "refuse")

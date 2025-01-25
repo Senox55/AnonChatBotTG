@@ -7,7 +7,7 @@ class GameBoard:
         self.size = size # Размер поля
         self.board = ["⬜"] * self.size ** 2 # Игровое поле
         self.current_player = "❌" # Текущий игрок
-        self.win_length = 4 if self.size == 5 else 3 # Кол-во символов, идущих подряд для победы
+        self.win_length = 3 if self.size == 3 else 4 # Кол-во символов, идущих подряд для победы
         self.winner = None # Победитель
 
     def get_board_markup(self) -> InlineKeyboardMarkup:

@@ -1,6 +1,6 @@
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from datetime import datetime
 import logging
 
@@ -18,14 +18,17 @@ class VipCheckMiddleware(BaseMiddleware):
         db = data["db"]
         translator = data['translator']
 
-        user_id = event.chat.id
+        user_id = event.from_user.id
 
         vip_status = await db.get_vip_status(user_id)
         if vip_status:
             return await handler(event, data)
 
-        await event.answer(
-            translator.get('vip_description'))
+        if isinstance(event, CallbackQuery):
+            await event.answer(translator.get('only_for_vip'))
+        else:
+            await event.answer(translator.get('vip_description'),
+                               reply_markup=buy_vip_keyboard_inline)
 
 class CheckValidityVipMiddleware(BaseMiddleware):
     async def __call__(

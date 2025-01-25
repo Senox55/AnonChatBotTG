@@ -36,6 +36,7 @@ async def main():
     dp.message.middleware(RegistrationCheckMiddleware())
     dp.message.middleware(CheckValidityVipMiddleware())
     vip_router.message.middleware(VipCheckMiddleware())
+    vip_router.callback_query.middleware(VipCheckMiddleware())
 
     await bot.delete_webhook(drop_pending_updates=True)
     try:

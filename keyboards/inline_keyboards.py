@@ -60,7 +60,7 @@ button_XO_mode_3_inline = InlineKeyboardButton(text='3 X 3', callback_data="XO_m
 
 button_XO_mode_4_inline = InlineKeyboardButton(text='4 X 4', callback_data="XO_mode_4")
 
-button_XO_mode_5_inline = InlineKeyboardButton(text='5 X 5', callback_data="XO_mode_5")
+button_XO_mode_5_inline = InlineKeyboardButton(text='5 X 5 (vip)', callback_data="XO_mode_5")
 
 button_accept_game_inline = InlineKeyboardButton(text='Принять', callback_data="accept_game")
 
@@ -121,4 +121,4 @@ keyboard_reports_inline = InlineKeyboardMarkup(inline_keyboard=[[button_report_s
                                                                 [button_cancel_report_inline]])
 
 keyboard_choose_game_mode_xo = InlineKeyboardMarkup(
-    inline_keyboard=[[button_XO_mode_3_inline, button_XO_mode_4_inline, button_XO_mode_5_inline], ])
+    inline_keyboard=[[button_XO_mode_3_inline, button_XO_mode_4_inline, button_XO_mode_5_inline]])
