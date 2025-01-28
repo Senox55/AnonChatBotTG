@@ -1,6 +1,8 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.exceptions import TelegramForbiddenError
+import logging
 import json
 
 from database.database import Database
@@ -60,16 +62,20 @@ async def stop_dialog(message: Message, db: Database, bot: Bot, translator: Tran
             reply_markup=keyboard_evaluate_interlocutor
         )
 
-        await bot.send_message(
-            chat_info[1],
-            translator.get('interlocutor_stop_dialog'),
-            reply_markup=keyboard_before_start_search)
-
-        await bot.send_message(
-            chat_info[1],
-            translator.get('evaluate_interlocutor'),
-            reply_markup=keyboard_evaluate_interlocutor
-        )
+        try:
+            await bot.send_message(
+                chat_id=user_id_two,
+                text=translator.get('interlocutor_stop_dialog'),
+                reply_markup=keyboard_before_start_search
+            )
+            await bot.send_message(
+                chat_id=user_id_two,
+                text=translator.get('evaluate_interlocutor'),
+                reply_markup=keyboard_evaluate_interlocutor
+            )
+        except TelegramForbiddenError:
+            # Если пользователь 2 заблокировал бота
+            logging.warning(f"Пользователь {user_id_two} заблокировал бота.")
 
         await db.delete_chat(chat_info[0])
 
