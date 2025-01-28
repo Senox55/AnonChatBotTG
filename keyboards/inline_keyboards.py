@@ -8,77 +8,78 @@ button_edit_profile_inline = InlineKeyboardButton(
 
 # Инлайн-кнопки для выбора пола
 button_set_male_inline = InlineKeyboardButton(
-    text='Я Парень 🙋‍♂',
+    text='🙋‍♂️ Парень',
     callback_data='set_male_pressed'
 )
 
 button_set_female_inline = InlineKeyboardButton(
-    text='Я Девушка 🙋‍♀️',
+    text='🙋‍♀️ Девушка',
     callback_data='set_female_pressed'
 )
 
+# Инлайн-кнопки для выбора возраста
 button_set_17_inline = InlineKeyboardButton(
-    text='до 17 лет',
+    text='до 17',
     callback_data='set_age_17'
 )
 button_set_21_inline = InlineKeyboardButton(
-    text='от 18 до 21 года',
+    text='18-21',
     callback_data='set_age_21'
 )
 button_set_25_inline = InlineKeyboardButton(
-    text='от 22 до 25 лет',
+    text='22-25',
     callback_data='set_age_25'
 )
 button_set_35_inline = InlineKeyboardButton(
-    text='от 26 до 35 лет',
+    text='26-35',
     callback_data='set_age_35'
 )
 button_set_45_inline = InlineKeyboardButton(
-    text='от 36 до 45 лет',
+    text='36-45',
     callback_data='set_age_45'
 )
 button_set_46_inline = InlineKeyboardButton(
-    text='старше 46',
+    text='46+',
     callback_data='set_age_46'
 )
 
 button_buy_vip_for_7_days_inline = InlineKeyboardButton(
-    text="7 дней за 150 ⭐️",
+    text="👑 7 дней за 150 ⭐️",
     callback_data="buy_vip_stars_for_7_days")
 
 button_buy_vip_for_1_month_inline = InlineKeyboardButton(
-    text="1 месяц за 250 ⭐️",
+    text="👑 1 месяц за 250 ⭐️",
     callback_data="buy_vip_stars_for_1_month")
 
 button_buy_vip_for_1_year_inline = InlineKeyboardButton(
-    text="1 год за 499 ⭐️",
+    text="👑 1 год за 499 ⭐️",
     callback_data="buy_vip_stars_for_1_year")
 
-button_play_XO_inline = InlineKeyboardButton(text='X-O', callback_data="invite_play_xo")
+button_play_XO_inline = InlineKeyboardButton(text='🕹️ X-O', callback_data="invite_play_xo")
 
-button_XO_mode_3_inline = InlineKeyboardButton(text='3 X 3', callback_data="XO_mode_3")
+button_XO_mode_3_inline = InlineKeyboardButton(text='3x3', callback_data="XO_mode_3")
 
-button_XO_mode_4_inline = InlineKeyboardButton(text='4 X 4', callback_data="XO_mode_4")
+button_XO_mode_4_inline = InlineKeyboardButton(text='4x4', callback_data="XO_mode_4")
 
-button_XO_mode_5_inline = InlineKeyboardButton(text='5 X 5 (vip)', callback_data="XO_mode_5")
+button_XO_mode_5_inline = InlineKeyboardButton(text='5x5 🔒', callback_data="XO_mode_5")
 
-button_accept_game_inline = InlineKeyboardButton(text='Принять', callback_data="accept_game")
+button_accept_game_inline = InlineKeyboardButton(text='✅ Принять', callback_data="accept_game")
 
-button_refuse_game_inline = InlineKeyboardButton(text='Отказаться', callback_data="refuse_game")
+button_refuse_game_inline = InlineKeyboardButton(text='❌ Отказ', callback_data="refuse_game")
 
-button_cancel_game_inline = InlineKeyboardButton(text='Отменить', callback_data="cancel_game")
+button_cancel_game_inline = InlineKeyboardButton(text='🚫 Отменить', callback_data="cancel_game")
 
-button_report_inline = InlineKeyboardButton(text='⚠️Пожаловаться', callback_data=f"report")
+button_report_inline = InlineKeyboardButton(text='⚠️ Пожаловаться', callback_data=f"report")
 
 button_reduce_reputation = InlineKeyboardButton(text='👎', callback_data="reduce_reputation")
 
 button_add_reputation = InlineKeyboardButton(text='👍', callback_data="add_reputation")
 
-button_report_spam = InlineKeyboardButton(text='🤖Спам', callback_data="report_spam")
+button_report_spam = InlineKeyboardButton(text='🤖 Спам', callback_data="report_spam")
 
-button_report_abuse = InlineKeyboardButton(text='🤬Оскорбления', callback_data="report_abuse")
+button_report_abuse = InlineKeyboardButton(text='🤬 Оскорбления', callback_data="report_abuse")
 
-button_report_content = InlineKeyboardButton(text='🔞Неприемлемый контент', callback_data="report_content")
+button_report_content = InlineKeyboardButton(text='🔞 Контент', callback_data="report_content")
 
 button_cancel_report_inline = InlineKeyboardButton(text='◀️Назад', callback_data="cancel_report")
 

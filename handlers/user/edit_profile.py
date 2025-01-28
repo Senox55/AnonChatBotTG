@@ -11,11 +11,16 @@ router = Router()
 async def set_chat_mode(callback: CallbackQuery, db: Database, translator: Translator, is_save):
     user_id = callback.from_user.id
     await db.change_user_chat_mode(user_id, is_save)
-    await callback.message.edit_text(
-        text=translator.get("safe_mode_enabled"),
-        reply_markup=None
-    )
-
+    if is_save:
+        await callback.message.edit_text(
+            text=translator.get("safe_mode_enabled"),
+            reply_markup=None
+        )
+    else:
+        await callback.message.edit_text(
+            text=translator.get("safe_mode_disabled"),
+            reply_markup=None
+        )
 
 async def set_gender(callback: CallbackQuery, db: Database, translator: Translator, gender: str):
     """

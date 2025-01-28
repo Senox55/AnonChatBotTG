@@ -48,6 +48,6 @@ async def process_choose_game_command(message: Message, db, translator):
     await process_choose_game(message, db, translator)
 
 
-@router.message(F.text == '🎲 Сыграть в игру', IsINChat())
+@router.message(F.text == '🎲 Играть', IsINChat())
 async def process_choose_game_button(message: Message, db, translator):
     await process_choose_game(message, db, translator)

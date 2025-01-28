@@ -1,6 +1,6 @@
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
-button_search_random = KeyboardButton(text='🔍Начать общение')
+button_search_random = KeyboardButton(text='🎭 Найти маску')
 button_search_by_gender = KeyboardButton(text='👫Поиск по полу')
 button_stop_search = KeyboardButton(text='✋ Отменить поиск')
 button_stop_dialog = KeyboardButton(text='👋 Завершить чат')
@@ -16,7 +16,7 @@ button_age_between_22_25 = KeyboardButton(text='📍 22-25')
 button_age_between_26_35 = KeyboardButton(text='📍 26-35')
 button_age_between_36_45 = KeyboardButton(text='📍 36-45')
 button_age_more_46 = KeyboardButton(text='📍 46+')
-button_start_play = KeyboardButton(text='🎲 Сыграть в игру')
+button_start_play = KeyboardButton(text='🎲 Играть')
 
 keyboard_before_start_search = ReplyKeyboardMarkup(
     keyboard=[[button_search_random],
