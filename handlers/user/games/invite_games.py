@@ -12,6 +12,8 @@ from language.translator import Translator
 
 router = Router()
 
+logger = logging.getLogger(__name__)
+
 
 async def process_invite_xo_game(callback: CallbackQuery, db: Database, translator: Translator, size: int):
     """
@@ -23,9 +25,9 @@ async def process_invite_xo_game(callback: CallbackQuery, db: Database, translat
     :return:
     """
     user_id_one = callback.from_user.id
-    logging.info(f"Пользователь 1: {user_id_one}")
+    logger.info(f"Пользователь 1: {user_id_one}")
     chat_info = await db.get_active_chat(user_id_one)
-    logging.info(f"Информация об активном чате: {chat_info}")
+    logger.info(f"Информация об активном чате: {chat_info}")
     user_id_two = chat_info[1]
 
     user_one_message = await callback.message.edit_text(translator.get('send_request_for_game'),
@@ -40,10 +42,10 @@ async def process_invite_xo_game(callback: CallbackQuery, db: Database, translat
     await db.set_user_state(user_id_two, "waiting_for_start",
                             json.dumps({"message_id": user_two_message.message_id, "size": size}))
 
-    logging.info(
+    logger.info(
         f"user message one: {user_one_message.message_id}, user message two: {user_two_message.message_id}")
 
-    logging.info(f"Приглашение на игру отправлено от {user_id_one} к {user_id_two}")
+    logger.info(f"Приглашение на игру отправлено от {user_id_one} к {user_id_two}")
 
 
 async def process_game_action(callback: CallbackQuery, db: Database, translator: Translator, action: str):

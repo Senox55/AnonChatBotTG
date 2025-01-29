@@ -9,9 +9,10 @@ from database.database import Database
 from filters.is_in_chat_filter import IsINChat
 from language.translator import Translator
 
-logging.basicConfig(level=logging.INFO)
 
 router = Router()
+
+logger = logging.getLogger(__name__)
 
 
 async def process_choose_game(message: Message, db: Database, translator: Translator):
@@ -34,7 +35,7 @@ async def process_choose_game(message: Message, db: Database, translator: Transl
                 reply_markup=keyboard_after_find_dialog)
             return
     else:
-        logging.info(f"user {user_id} choose game")
+        logger.info(f"user {user_id} choose game")
         user_one_message = await message.answer(
             text=translator.get('choose_game'),
             reply_markup=keyboard_before_choose_game_inline
