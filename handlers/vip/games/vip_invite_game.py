@@ -1,12 +1,10 @@
-import logging
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
-import json
 
 from database.database import Database
 from filters.is_in_chat_filter import IsINChat
 from language.translator import Translator
-from handlers.user.invite_games import process_invite_xo_game
+from handlers.user.games.invite_games import process_invite_xo_game
 
 router = Router()
 

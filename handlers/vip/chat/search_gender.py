@@ -1,11 +1,10 @@
 from aiogram import F, Router, Bot
 from aiogram.types import Message, FSInputFile
-from aiogram.filters import CommandStart, Command
 
 from database.database import Database
 from keyboards import *
 from language.translator import Translator
-from handlers.user.search import start_search
+from handlers.user.chat.search import start_search
 
 router = Router()
 
