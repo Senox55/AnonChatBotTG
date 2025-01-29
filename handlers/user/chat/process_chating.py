@@ -1,7 +1,7 @@
+import logging
 from aiogram import Router, Bot
 from aiogram.exceptions import TelegramForbiddenError
 from aiogram.types import Message
-import logging
 
 from database.database import Database
 from language.translator import Translator
@@ -11,6 +11,7 @@ from keyboards import *
 
 router = Router()
 
+logger = logging.getLogger(__name__)
 
 @router.message()
 async def process_chatting(message: Message, db: Database, translator: Translator, bot: Bot):
@@ -24,7 +25,7 @@ async def process_chatting(message: Message, db: Database, translator: Translato
             # Получаем режим собеседника
             receiver_safe_mode = await db.get_user_chat_mode(user_id_two)
 
-            logging.info(f"Пользователь {user_id_two} имеет safe mode = {receiver_safe_mode}")
+            logger.info(f"User {user_id_two} have safe mode = {receiver_safe_mode}")
 
             if message.photo and receiver_safe_mode:
                 photo = message.photo[-1]

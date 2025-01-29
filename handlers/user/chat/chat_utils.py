@@ -1,9 +1,7 @@
 from aiogram import Router, Bot
 from aiogram.types import Message
-import logging
 import json
 
-from keyboards import *
 from database.database import Database
 from language.translator import Translator
 

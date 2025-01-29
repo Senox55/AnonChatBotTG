@@ -7,7 +7,7 @@ from database.database import Database
 
 router = Router()
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
@@ -19,7 +19,7 @@ async def user_blocked_bot(event: ChatMemberUpdated, db: Database):
     :return:
     """
     user_id = event.from_user.id
-    logging.info(f"Пользователь {user_id} заблокировал бота")
+    logger.info(f"User {user_id} block bot")
 
     await db.set_alive_to_false(user_id)
 
@@ -36,5 +36,5 @@ async def user_unblocked_bot(event: ChatMemberUpdated, db: Database):
     :return:
     """
     user_id = event.from_user.id
-    logging.info(f"Пользователь {user_id} разблокировал бота")
+    logger.info(f"User {user_id} unblock bot")
     await db.set_alive_to_true(user_id)

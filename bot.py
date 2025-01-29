@@ -1,4 +1,6 @@
 import asyncio
+import logging
+
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
 
@@ -9,8 +11,11 @@ from middlewares import VipCheckMiddleware, CheckValidityVipMiddleware, Registra
     TranslatorMiddleware, DataBaseMiddleware
 from handlers import vip_router, user_router
 
+logger = logging.getLogger(__name__)
+
 
 async def main():
+    logger.info("Starting bot")
     # Загружаем конфиги
     config = load_config('.env')
 
@@ -40,12 +45,15 @@ async def main():
 
     await bot.delete_webhook(drop_pending_updates=True)
     try:
-        await dp.start_polling(bot,
-                               _db_pool=db_pool,
-                               translator=Translator())
+        await asyncio.gather(
+            dp.start_polling(
+                bot,
+                _db_pool=db_pool,
+                translator=Translator()
+            )
+        )
+    except Exception as e:
+        logger.exception(e)
     finally:
         await db_pool.close()
-
-
-if __name__ == '__main__':
-    asyncio.run(main())
+        logger.info('Connection to Postgres closed')

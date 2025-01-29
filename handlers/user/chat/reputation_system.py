@@ -1,11 +1,9 @@
 from aiogram import F, Router
 from aiogram.types import CallbackQuery, LabeledPrice, Message, PreCheckoutQuery
 
-from config_data.config import load_config
 from language.translator import Translator
 
 router = Router()
-config = load_config('.env')
 
 
 @router.callback_query(F.data == 'add_reputation')

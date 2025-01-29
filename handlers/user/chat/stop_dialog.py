@@ -11,6 +11,8 @@ from language.translator import Translator
 
 router = Router()
 
+logger = logging.getLogger(__name__)
+
 
 async def stop_dialog(message: Message, db: Database, bot: Bot, translator: Translator, from_search_next=False):
     user_id_one = message.from_user.id
@@ -75,7 +77,7 @@ async def stop_dialog(message: Message, db: Database, bot: Bot, translator: Tran
             )
         except TelegramForbiddenError:
             # Если пользователь 2 заблокировал бота
-            logging.warning(f"Пользователь {user_id_two} заблокировал бота.")
+            logger.warning(f"User {user_id_two} block bot")
 
         await db.delete_chat(chat_info[0])
 

@@ -9,7 +9,7 @@ from handlers.user.chat.search import start_search
 from language.translator import Translator
 
 router = Router()
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @router.message(Command(commands=['next']))

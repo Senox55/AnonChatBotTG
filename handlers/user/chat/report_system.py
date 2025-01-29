@@ -6,7 +6,6 @@ from keyboards import *
 from language.translator import Translator
 
 router = Router()
-config = load_config('.env')
 
 
 @router.callback_query(F.data == 'report')

@@ -1,10 +1,12 @@
+import logging
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.types import Message, CallbackQuery
 from datetime import datetime
-import logging
 
 from keyboards import *
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -45,7 +47,7 @@ class CheckValidityVipMiddleware(BaseMiddleware):
         vip_status = await db.get_vip_status(user_id)
         if vip_status:
             end_date = vip_status['end_date']
-            logging.info(f"Дата истечения VIP: {end_date}")
+            logger.info(f"Дата истечения VIP: {end_date}")
             if end_date and end_date < datetime.now():
                 # Если срок действия истёк, деактивируем статус
                 await db.deactivate_vip_status(user_id)
