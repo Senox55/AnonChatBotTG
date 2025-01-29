@@ -65,7 +65,7 @@ button_XO_mode_5_inline = InlineKeyboardButton(text='5x5 🔒', callback_data="X
 
 button_accept_game_inline = InlineKeyboardButton(text='✅ Принять', callback_data="accept_game")
 
-button_refuse_game_inline = InlineKeyboardButton(text='❌ Отказ', callback_data="refuse_game")
+button_refuse_game_inline = InlineKeyboardButton(text='❌ Отказаться', callback_data="refuse_game")
 
 button_cancel_game_inline = InlineKeyboardButton(text='🚫 Отменить', callback_data="cancel_game")
 
@@ -92,8 +92,8 @@ unsafe_mode = InlineKeyboardButton(text='🔓 Без ограничений', ca
 keyboard_before_change_gender_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_set_male_inline, button_set_female_inline]])
 
-keyboard_edit_profile_inline = InlineKeyboardMarkup(inline_keyboard=[[button_edit_profile_inline],
-                                                                     [edit_chat_mode]])
+keyboard_edit_settings_inline = InlineKeyboardMarkup(inline_keyboard=[[button_edit_profile_inline],
+                                                                      [edit_chat_mode]])
 
 keyboard_edit_chat_mode_inline = InlineKeyboardMarkup(inline_keyboard=[[safe_mode, unsafe_mode]])
 

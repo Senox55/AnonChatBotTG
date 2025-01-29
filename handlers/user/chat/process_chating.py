@@ -8,70 +8,65 @@ from language.translator import Translator
 from handlers.user.chat.chat_utils import close_game_after_stop_dialog
 from keyboards import *
 
-
 router = Router()
 
 logger = logging.getLogger(__name__)
 
+
+async def get_media_type(message):
+    media_types = {
+        'photo': 'фото',
+        'video': 'видео',
+        'animation': 'GIF',
+        'sticker': 'стикер',
+        'voice': 'голосовое',
+        'document': 'файл'
+    }
+
+    for attr, type_name in media_types.items():
+        if getattr(message, attr):
+            return type_name
+    return 'файл'
+
+
 @router.message()
 async def process_chatting(message: Message, db: Database, translator: Translator, bot: Bot):
-    user_id_one = message.chat.id
-    chat_info = await db.get_active_chat(user_id_one)
-    is_in_queue = await db.is_in_queue(user_id_one)
+    user_id = message.chat.id
+    chat_info = await db.get_active_chat(user_id)
+    is_in_queue = await db.is_in_queue(user_id)
 
-    if chat_info:
-        user_id_two = chat_info[1]
-        try:
-            # Получаем режим собеседника
-            receiver_safe_mode = await db.get_user_chat_mode(user_id_two)
-
-            logger.info(f"User {user_id_two} have safe mode = {receiver_safe_mode}")
-
-            if message.photo and receiver_safe_mode:
-                photo = message.photo[-1]
-                # Отправляем фото как спойлер
-                await bot.send_photo(
-                    chat_id=user_id_two,
-                    photo=photo.file_id,
-                    caption=message.caption,
-                    has_spoiler=True
-                )
-
-
-            elif message.video and receiver_safe_mode:
-                # Отправляем видео как спойлер
-                await bot.send_video(
-                    chat_id=user_id_two,
-                    video=message.video.file_id,
-                    caption=message.caption,
-                    has_spoiler=True
-
-                )
-
-            elif message.animation and receiver_safe_mode:
-                # Отправляем GIF как спойлер
-                await bot.send_animation(
-                    chat_id=user_id_two,
-                    animation=message.animation.file_id,
-                    caption=message.caption,
-                    has_spoiler=True
-                )
-            else:
-                # Для всех остальных сообщений или когда безопасный режим выключен
-                await message.send_copy(chat_id=user_id_two)
-
-        except TelegramForbiddenError:
-            logging.info(TelegramForbiddenError)
-            await close_game_after_stop_dialog(message, db, translator, bot)
-            await message.answer(translator.get('interlocutor_blocked_bot'), reply_markup=keyboard_before_start_search)
-
-    elif is_in_queue:
+    if not chat_info and not is_in_queue:
         await message.answer(
-            translator.get('start_search_when_in_search'),
+            translator.get('not_in_chat'),
+            reply_markup=keyboard_before_start_search
+        )
+        return
+
+    if is_in_queue:
+        await message.answer(
+            translator.get('in_queue'),
             reply_markup=keyboard_after_start_research
         )
-    else:
+        return
+
+    partner_id = chat_info[1]
+    try:
+        safe_mode = await db.get_user_chat_mode(partner_id)
+        logger.info(f"User {partner_id} safe mode: {safe_mode}")
+
+        if safe_mode and not message.text:
+            media_type = await get_media_type(message)
+            await bot.send_message(
+                chat_id=partner_id,
+                text=translator.get("hidden_content_alert", media_type=media_type)
+            )
+        else:
+            await message.send_copy(chat_id=partner_id)
+
+    except TelegramForbiddenError:
+        logger.exception("TelegramForbiddenError")
+        await close_game_after_stop_dialog(message, db, translator, bot)
         await message.answer(
-            translator.get('when_not_in_dialog'),
-            reply_markup=keyboard_before_start_search
+            translator.get('chat_ended'),
+            reply_markup=keyboard_edit_settings_inline
         )

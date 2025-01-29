@@ -47,7 +47,7 @@ async def show_profile(message: Message, db: Database, translator: Translator):
             f"{translator.get('profile-footer')}"
         )
 
-        await message.answer(profile_message, parse_mode="HTML", reply_markup=keyboard_edit_profile_inline)
+        await message.answer(profile_message, parse_mode="HTML", reply_markup=keyboard_edit_settings_inline)
 
 
 @router.message(Command(commands=['profile']))

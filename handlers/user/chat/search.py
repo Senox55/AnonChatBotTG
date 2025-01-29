@@ -69,6 +69,6 @@ async def process_search_command(message: Message, db: Database, bot: Bot, trans
     await start_search(message, db, bot, translator)
 
 
-@router.message(F.text == '🎭 Найти маску')
+@router.message(F.text == '🔍Начать общение')
 async def process_start_search_random_command(message: Message, db: Database, bot: Bot, translator: Translator):
     await start_search(message, db, bot, translator)
