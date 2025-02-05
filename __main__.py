@@ -7,7 +7,7 @@ logging.basicConfig(
            '%(lineno)d - %(name)s - %(message)s'
 )
 
-from bot import main
+from app.tgbot.bot import main
 
 
 

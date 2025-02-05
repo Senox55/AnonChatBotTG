@@ -1,4 +1,0 @@
-from middlewares.database import DataBaseMiddleware
-from middlewares.registration import RegistrationCheckMiddleware
-from middlewares.translator import TranslatorMiddleware
-from middlewares.vip_checker import VipCheckMiddleware, CheckValidityVipMiddleware
