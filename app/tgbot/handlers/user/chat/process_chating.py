@@ -80,8 +80,8 @@ async def process_chatting(message: Message, redis: Redis, translator: Translato
                 nickname = user_nickname if user_nickname else f"Пользователь"
                 await bot.send_message(
                     chat_id=u_id,
-                    text=f"*{nickname}*\n{message.text}",  # Отправляем сообщение с никнеймом
-                    parse_mode='Markdown'
+                    text=f"*_{nickname}_*\n{message.text}",  # Отправляем сообщение с никнеймом
+                    parse_mode='MarkdownV2'
                 )
             else:
                 await message.send_copy(chat_id=u_id)
