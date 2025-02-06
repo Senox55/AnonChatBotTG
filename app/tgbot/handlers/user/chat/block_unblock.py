@@ -31,7 +31,7 @@ async def user_blocked_bot(event: ChatMemberUpdated, db: Database, redis: Redis)
         key = f"rooms:{room_id}"
 
         # Удаляем user_id из списка пользователей комнаты
-        await redis.lrem(f"{key}:users", 0, str(user_id))
+        await redis.lrem(f"{key}:user_ids", 0, str(user_id))
 
         # Удаляем запись о комнатах пользователя
         await redis.delete(f"user_rooms:{user_id}")

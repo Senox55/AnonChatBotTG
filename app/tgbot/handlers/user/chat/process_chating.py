@@ -40,11 +40,14 @@ async def process_chatting(message: Message, redis: Redis, translator: Translato
         )
         return
 
+    room_key = f"rooms:{room_id}"
     room_status = await redis.hget(f"rooms:{room_id}", "status")
+    users = await redis.lrange(f"{room_key}:user_ids", 0, -1)
+    room_capacity = await redis.hget(f"users:{user_id}", "preferred_room_capacity")
 
-    if room_status == "waiting":
+    if room_status == 'waiting':
         await message.answer(
-            text=translator.get('in_search'),
+            translator.get('in_search', count=len(users), capacity=room_capacity),
             reply_markup=keyboard_after_start_search
         )
         return
@@ -88,6 +91,3 @@ async def process_chatting(message: Message, redis: Redis, translator: Translato
     #     await message.answer(
     #         translator.get('interlocutor_blocked_bot')
     #     )
-
-
-
