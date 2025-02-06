@@ -24,7 +24,7 @@ async def stop_dialog(message: Message, redis: Redis, bot: Bot, translator: Tran
     if room_id:
         room_status = await redis.hget(f"rooms:{room_id}", "status")
         if room_status == "dialog":
-            users = await redis.lrange(f"rooms:{room_id}:users", 0, -1)  # Получаем всех пользователей
+            users = await redis.lrange(f"rooms:{room_id}:user_ids", 0, -1)  # Получаем всех пользователей
             for u_id in users:
                 if str(user_id) == u_id:
                     await bot.send_message(

@@ -6,14 +6,11 @@ logger = logging.getLogger(__name__)
 
 def parse_user_info(records: list) -> dict:
     user_info = {}
-    print(records)
     for record in records:
-        print(record)
 
         logger.info(f"Parameter Name: {record.get("parameter_name")}, Parameter Value: {record.get("parameter_value")}")
         user_info[record.get("parameter_name")] = convert_value(record.get("parameter_value"),
                                                                 record.get("parameter_value_data"))
-        print(user_info)
     return user_info
 
 
