@@ -31,14 +31,14 @@ async def process_finish_search_command(message: Message, redis: Redis, translat
     logger.info(f"Room status before delete: {room_status}")
     if room_status == "waiting":
         await waiting_exit(
-            redis, bot, translator, user_id, room_id, room_key, message
+            redis, bot, translator, user_id, room_key, message
         )
 
         # Удаляем пользователя из комнаты
         await redis.lrem(f"{room_key}:user_ids", 0, str(user_id))
 
         # Проверяем оставшихся пользователей в комнате
-        await remaining_users(redis, bot, room_id, room_key, room_status)
+        await remaining_users(redis, bot, translator, room_id, room_key, room_status)
 
         # Удаляем запись о комнате пользователя
         await redis.delete(f"user_rooms:{user_id}")
