@@ -173,4 +173,8 @@ alone_in_room = 😔 Вы остались одни в комнате. Диал�
 
 one_interlocutor_left = 👋 Один из собеседников покинул диалог
 
+search_settings_header = ✨ Ваши настройки поиска:
+preferred_gender = • Пол: { $preferred_gender }
+preferred_room_capacity = • Участников в комнате: { $room_capacity }
+
 

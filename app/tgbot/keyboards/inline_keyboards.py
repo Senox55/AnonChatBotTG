@@ -2,8 +2,13 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 # Инлайн-кнопка для редактирования профиля
 button_edit_profile_inline = InlineKeyboardButton(
-    text='⚙️ Изменить профиль',
+    text='✏️ Изменить профиль',
     callback_data='edit_profile_pressed'
+)
+
+button_search_settings_inline = InlineKeyboardButton(
+    text='⚡️ Параметры поиска',
+    callback_data='search_settings_pressed'
 )
 
 # Инлайн-кнопки для выбора пола
@@ -95,6 +100,12 @@ safe_mode = InlineKeyboardButton(text='🔒 Безопасный', callback_data
 
 unsafe_mode = InlineKeyboardButton(text='🔓 Без ограничений', callback_data="unsafe_mode")
 
+button_choose_preferred_gender_male = InlineKeyboardButton(text="🙋‍♂️", callback_data="choose_preferred_gender_male")
+
+button_choose_preferred_gender_female = InlineKeyboardButton(text="🙋‍♀", callback_data="choose_preferred_gender_female")
+
+button_choose_preferred_gender_random = InlineKeyboardButton(text="🎭", callback_data="choose_preferred_gender_random")
+
 keyboard_before_change_gender_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_set_male_inline, button_set_female_inline]])
 
@@ -119,7 +130,7 @@ keyboard_before_accept_game_inline = InlineKeyboardMarkup(
 
 keyboard_before_cancel_game_inline = InlineKeyboardMarkup(inline_keyboard=[[button_cancel_game_inline]])
 
-keyboard_evaluate_interlocutor = InlineKeyboardMarkup(
+keyboard_evaluate_interlocutor_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_add_reputation, button_reduce_reputation], [button_report_inline]])
 
 keyboard_reports_inline = InlineKeyboardMarkup(inline_keyboard=[[button_report_spam],
@@ -127,8 +138,15 @@ keyboard_reports_inline = InlineKeyboardMarkup(inline_keyboard=[[button_report_s
                                                                 [button_report_content],
                                                                 [button_cancel_report_inline]])
 
+keyboard_choose_preferred_gender_inline = InlineKeyboardMarkup(
+    inline_keyboard=[[button_choose_preferred_gender_male, button_choose_preferred_gender_random,
+                      button_choose_preferred_gender_female]])
+
+keyboard_change_search_settings_inline = InlineKeyboardMarkup(
+    inline_keyboard=[[button_search_settings_inline]])
+
 keyboard_choose_game_mode_xo = InlineKeyboardMarkup(
     inline_keyboard=[[button_XO_mode_3_inline, button_XO_mode_4_inline, button_XO_mode_5_inline]])
 
-keyboard_choose_room_capacity = InlineKeyboardMarkup(
+keyboard_choose_room_capacity_inline = InlineKeyboardMarkup(
     inline_keyboard=[[button_two_members, button_three_members, button_four_members]])

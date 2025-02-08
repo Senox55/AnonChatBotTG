@@ -504,3 +504,16 @@ class Database():
     async def update_alive(self, user_id: int, is_alive: bool) -> bool:
 
         return await self.update_user_parameter(user_id, 'is_alive', str(is_alive))
+
+    async def update_preferred_gender(self, user_id: int, preferred_gender: str) -> bool:
+        """
+        Обновляет предпочтительную вместимость комнаты пользователя.
+
+        Args:
+            user_id (int): Идентификатор пользователя
+            new_capacity (int): Новая вместимость комнаты
+
+        Returns:
+            bool: Успешность операции
+        """
+        return await self.update_user_parameter(user_id, 'preferred_gender', str(preferred_gender))
